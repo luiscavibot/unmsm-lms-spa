@@ -1,6 +1,6 @@
 import { ThemeProvider, createTheme, responsiveFontSizes } from '@mui/material/styles';
-import { useAppSelector } from '@/app/store';
-import { PaletteMode } from '@mui/material';
+// import { useAppSelector } from '@/app/store';
+// import { PaletteMode } from '@mui/material';
 import React from 'react';
 
 type Props = {
@@ -86,11 +86,13 @@ declare module '@mui/material/Typography' {
   }
 }
 export const AppThemeProvider: React.FC<Props> = ({ children }) => {
-  const mode = useAppSelector((state) => state.user.mode);
+//   const mode = useAppSelector((state) => state.user.mode);
+//   const mode = 'light';
   const theme = responsiveFontSizes(
     createTheme({
       palette: {
-        mode: mode as PaletteMode,
+        // mode: mode as PaletteMode,
+        mode: 'light',
         primary: {
           main: '#1c9c7c',
         },
@@ -129,29 +131,29 @@ export const AppThemeProvider: React.FC<Props> = ({ children }) => {
           Lighter: '#7FF77F',
           Lightest: '#E5FFE5',
         },
-        background: {
-          default: mode === 'dark' ? '#000000' : '#FCFBFA',
-          opposite: mode === 'dark' ? '#FCFBFA' : '#000000',
-          paper: mode === 'dark' ? '#131313' : '#FCFCFC',
-        },
-        text: {
-          primary: mode === 'dark' ? '#FFFFFF' : '#000000',
-          secondary: '#999999',
-          disabled: '#C3C1BD',
-        },
+        // background: {
+        //   default: mode === 'dark' ? '#000000' : '#FCFBFA',
+        //   opposite: mode === 'dark' ? '#FCFBFA' : '#000000',
+        //   paper: mode === 'dark' ? '#131313' : '#FCFCFC',
+        // },
+        // text: {
+        //   primary: mode === 'dark' ? '#FFFFFF' : '#000000',
+        //   secondary: '#999999',
+        //   disabled: '#C3C1BD',
+        // },
 
-        grey: {
-          50: mode === 'dark' ? 'hsl(0, 0%, 10%)' : 'hsl(0, 5%, 95%)',
-          100: mode === 'dark' ? 'hsl(0, 0%, 20%)' : 'hsl(0, 0%, 90%)',
-          200: mode === 'dark' ? 'hsl(0, 0%, 30%)' : 'hsl(0, 0%, 80%)',
-          300: mode === 'dark' ? 'hsl(0, 0%, 40%)' : 'hsl(0, 0%, 70%)',
-          400: mode === 'dark' ? 'hsl(0, 0%, 50%)' : 'hsl(0, 0%, 60%)',
-          500: mode === 'dark' ? 'hsl(0, 0%, 60%)' : 'hsl(0, 0%, 50%)',
-          600: mode === 'dark' ? 'hsl(0, 0%, 70%)' : 'hsl(0, 0%, 40%)',
-          700: mode === 'dark' ? 'hsl(0, 0%, 80%)' : 'hsl(0, 0%, 30%)',
-          800: mode === 'dark' ? 'hsl(0, 0%, 90%)' : 'hsl(0, 0%, 20%)',
-          900: mode === 'dark' ? 'hsl(0, 5%, 95%)' : 'hsl(0, 0%, 10%)',
-        },
+        // grey: {
+        //   50: mode === 'dark' ? 'hsl(0, 0%, 10%)' : 'hsl(0, 5%, 95%)',
+        //   100: mode === 'dark' ? 'hsl(0, 0%, 20%)' : 'hsl(0, 0%, 90%)',
+        //   200: mode === 'dark' ? 'hsl(0, 0%, 30%)' : 'hsl(0, 0%, 80%)',
+        //   300: mode === 'dark' ? 'hsl(0, 0%, 40%)' : 'hsl(0, 0%, 70%)',
+        //   400: mode === 'dark' ? 'hsl(0, 0%, 50%)' : 'hsl(0, 0%, 60%)',
+        //   500: mode === 'dark' ? 'hsl(0, 0%, 60%)' : 'hsl(0, 0%, 50%)',
+        //   600: mode === 'dark' ? 'hsl(0, 0%, 70%)' : 'hsl(0, 0%, 40%)',
+        //   700: mode === 'dark' ? 'hsl(0, 0%, 80%)' : 'hsl(0, 0%, 30%)',
+        //   800: mode === 'dark' ? 'hsl(0, 0%, 90%)' : 'hsl(0, 0%, 20%)',
+        //   900: mode === 'dark' ? 'hsl(0, 5%, 95%)' : 'hsl(0, 0%, 10%)',
+        // },
         gradient: {
           bronze: 'linear-gradient(180deg, #9C6D3E 0%, #E8C8A9 100%)',
           silver: 'linear-gradient(180deg, #808080 0%, #DFDFDF 100%)',
@@ -249,6 +251,8 @@ export const AppThemeProvider: React.FC<Props> = ({ children }) => {
           styleOverrides: {
             body: {
               // ---CSS BODY--- \\
+			  backgroundColor: '#fdfdfd',
+			  color: '#0B1621',
             },
           },
         },
@@ -272,6 +276,23 @@ export const AppThemeProvider: React.FC<Props> = ({ children }) => {
             },
           },
         },
+		// MuiTextField: {
+		// 	styleOverrides: {
+		// 	  root: ({ theme }) => ({
+		// 		'& .MuiOutlinedInput-root': {
+		// 		  '& fieldset': {
+		// 			borderColor: theme.palette.mode === 'dark' ? '#0000003B' : '#0000003B',
+		// 		  },
+		// 		  '&:hover fieldset': {
+		// 			borderColor: theme.palette.mode === 'dark' ? '#0000003B' : '#0000003B',
+		// 		  },
+		// 		  '&.Mui-focused fieldset': {
+		// 			borderColor: theme.palette.primary.main,
+		// 		  },
+		// 		},
+		// 	  }),
+		// 	},
+		// },
       },
     }),
   );
