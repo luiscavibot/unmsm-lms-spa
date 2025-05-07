@@ -10,6 +10,7 @@ import {
 	Link,
   } from '@mui/material'
   import { Visibility, VisibilityOff } from '@mui/icons-material'
+  import { Link as RouterLink } from 'react-router-dom';
   import { useState } from 'react'
 import GoogleIcon from '@/assets/icons/GoogleIcon'
   
@@ -51,7 +52,7 @@ import GoogleIcon from '@/assets/icons/GoogleIcon'
 				/>
 
 				<div>
-					<Link href="#" underline="hover" fontSize="14px" sx={{ display: 'inline-block' }}>
+					<Link component={RouterLink} to="/forgot-password" underline="hover" fontSize="14px" sx={{ display: 'inline-block' }}>
 						Olvidé mi contraseña
 					</Link>
 				</div>
