@@ -365,6 +365,20 @@ export const AppThemeProvider: React.FC<Props> = ({ children }) => {
 						},
 					},
 				},
+				MuiMenuItem: {
+					styleOverrides: {
+						root: ({theme}) => ({
+							color: theme.palette.neutral.dark,
+						})
+					}
+				},
+				MuiListItemIcon: {
+					styleOverrides: {
+						root: ({theme}) => ({
+							color: theme.palette.neutral.dark,
+						})
+					}
+				},
 				// MuiButton: {
 				// 	styleOverrides: {
 				// 		root: ({theme}) => ({
