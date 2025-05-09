@@ -1,10 +1,43 @@
 import React from 'react'
 import EscudoBiologiaIcon from '@/assets/icons/EscudoBiologiaIcon'
 import { Menu as MenuIcon, Logout, Person, Settings } from '@mui/icons-material'
-import { AppBar, Avatar, Box, Divider, IconButton, ListItemIcon, Menu, MenuItem, Toolbar, Typography, useTheme } from '@mui/material'
+import { Avatar, Box, Divider, IconButton, ListItemIcon, Menu, MenuItem, Toolbar, Typography, useTheme, styled } from '@mui/material'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAppDispatch } from '@/store/hooks';
+import { toggleDrawer } from '@/store/slices/ui/uiSlice';
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
+
+// const drawerWidth = 240;
+
+// interface AppBarProps extends MuiAppBarProps {
+//   open?: boolean;
+// }
+
+// const AppBar = styled(MuiAppBar, {
+//   shouldForwardProp: (prop) => prop !== 'open',
+// })<AppBarProps>(({ theme }) => ({
+//   zIndex: theme.zIndex.drawer + 1,
+//   transition: theme.transitions.create(['width', 'margin'], {
+//     easing: theme.transitions.easing.sharp,
+//     duration: theme.transitions.duration.leavingScreen,
+//   }),
+//   variants: [
+//     {
+//       props: ({ open }) => open,
+//       style: {
+//         marginLeft: drawerWidth,
+//         width: `calc(100% - ${drawerWidth}px)`,
+//         transition: theme.transitions.create(['width', 'margin'], {
+//           easing: theme.transitions.easing.sharp,
+//           duration: theme.transitions.duration.enteringScreen,
+//         }),
+//       },
+//     },
+//   ],
+// }));
 
 export default function Header() {
+	const dispatch = useAppDispatch();
 	const navigate = useNavigate()
 	const theme = useTheme()
 
@@ -22,20 +55,32 @@ export default function Header() {
 		setAnchorEl(null);
 		navigate('/');
 	};
+	const handleToggleDrawer = () => {
+		dispatch(toggleDrawer());
+	};
 
 	return (
-		<AppBar
-			position="static"
-			sx={{
-				bgcolor: theme.palette.primary.darkest,
-				boxShadow: 'none',
-				padding: { xs: '10px 4px', md: '12px 64px' },
-			}}
+		// <AppBar
+		// 	position="fixed"
+		// 	open={open}
+		// 	sx={{
+		// 		bgcolor: theme.palette.primary.darkest,
+		// 		boxShadow: 'none',
+		// 		padding: { xs: '10px 0px', md: '12px 0px' },
+		// 	}}
+		// >
+		<MuiAppBar position="fixed" sx={{
+			zIndex: (theme) => theme.zIndex.drawer + 1,
+			bgcolor: theme.palette.primary.darkest,
+			boxShadow: 'none',
+			// padding: { xs: '10px 0px', md: '12px 0px' },
+		}}
 		>
 			<Toolbar sx={{
 				color: theme.palette.neutral.lightest,
 				display: 'flex',
 				justifyContent: 'space-between',
+				// paddingY: { xs: '10px', md: '12px' },
 			}}>
 				<Box sx={{ display: 'flex', alignItems: 'center' }}>
 					<IconButton
@@ -44,6 +89,7 @@ export default function Header() {
 						color="inherit"
 						aria-label="menu"
 						sx={{ mr: 2 }}
+						onClick={handleToggleDrawer}
 					>
 						<MenuIcon />
 					</IconButton>
@@ -137,6 +183,6 @@ export default function Header() {
 					</Menu>
 				</div>
 			</Toolbar>
-		</AppBar>
+		</MuiAppBar>
 	)
 }
