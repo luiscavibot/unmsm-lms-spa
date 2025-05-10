@@ -13,9 +13,25 @@ import {
   import { Link as RouterLink } from 'react-router-dom';
   import { useState } from 'react'
 import GoogleIcon from '@/assets/icons/GoogleIcon'
+import { validateEmail } from '@/utils/validators';
+import { useNavigate } from 'react-router-dom'
   
   export const LoginForm = () => {
+	const navigate = useNavigate()
 	const [showPassword, setShowPassword] = useState(false)
+	const [email, setEmail] = useState('')
+	const [error, setError] = useState('')
+
+	const handleSubmit = (e: React.FormEvent) => {
+			e.preventDefault()
+			if (!validateEmail(email)) {
+				setError('Ingresa un correo electrónico válido')
+				return
+			}
+			setError('')
+			console.log('Solicitando ingreso para:', email)
+			navigate('/courses/posgrado')
+		}
   
 	return (
 		<Box width={{xs: 'auto', sm: '310px'}} maxWidth="100%">
@@ -28,38 +44,46 @@ import GoogleIcon from '@/assets/icons/GoogleIcon'
 			</Typography>
 	
 			<Stack spacing={2}>
-				<TextField
-					label="Correo electrónico"
-					fullWidth
-				/>
-		
-				<TextField
-					label="Contraseña"
-					type={showPassword ? 'text' : 'password'}
-					fullWidth
-					InputProps={{
-						endAdornment: (
-							<InputAdornment position="end">
-							<IconButton
-								onClick={() => setShowPassword(!showPassword)}
-								edge="end"
-							>
-								{showPassword ? <VisibilityOff /> : <Visibility />}
-							</IconButton>
-							</InputAdornment>
-						),
-					}}
-				/>
+				<Box component="form" onSubmit={handleSubmit}>
+					<Stack spacing={2}>
+						<TextField
+							label="Correo electrónico"
+							fullWidth
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
+							error={Boolean(error)}
+							helperText={error}
+						/>
+				
+						<TextField
+							label="Contraseña"
+							type={showPassword ? 'text' : 'password'}
+							fullWidth
+							InputProps={{
+								endAdornment: (
+									<InputAdornment position="end">
+									<IconButton
+										onClick={() => setShowPassword(!showPassword)}
+										edge="end"
+									>
+										{showPassword ? <VisibilityOff /> : <Visibility />}
+									</IconButton>
+									</InputAdornment>
+								),
+							}}
+						/>
 
-				<div>
-					<Link component={RouterLink} to="/forgot-password" underline="hover" fontSize="14px" sx={{ display: 'inline-block' }}>
-						Olvidé mi contraseña
-					</Link>
-				</div>
-		
-				<Button size="large" variant="contained" fullWidth>
-					INGRESAR
-				</Button>
+						<div>
+							<Link component={RouterLink} to="/forgot-password" underline="hover" fontSize="14px" sx={{ display: 'inline-block' }}>
+								Olvidé mi contraseña
+							</Link>
+						</div>
+				
+						<Button type="submit" size="large" variant="contained" fullWidth>
+							INGRESAR
+						</Button>
+					</Stack>
+				</Box>
 		
 				<Divider>o</Divider>
 		

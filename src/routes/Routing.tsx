@@ -7,6 +7,7 @@ import ForgotPasswordConfirmation from '@/pages/Auth/ForgotPasswordConfirmation'
 import ResetPassword from '@/pages/Auth/ResetPassword';
 import ResetPasswordConfirmation from '@/pages/Auth/ResetPasswordConfirmation';
 import Home from '@/pages/Home/Home';
+import CoursesList from '@/pages/Courses/CoursesList';
 
 const Routing = () => {
   return (
@@ -19,6 +20,7 @@ const Routing = () => {
       <Route path="/reset-password" element={<ResetPassword />} />
 	  <Route path="/reset-password/confirmation" element={<ResetPasswordConfirmation />} />
       <Route path="/dashboard" element={<Home />} />
+	  <Route path="/courses/:type" element={<CoursesList />} />
       <Route path="*" element={<Home />} />
     </Routes>
   );
