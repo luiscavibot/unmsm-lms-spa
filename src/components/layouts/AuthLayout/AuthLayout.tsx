@@ -17,7 +17,7 @@ export const AuthLayout = ({ children }: AuthLayoutProps) => {
 				sx={{
 					bgcolor: 'transparent',
 					boxShadow: 'none',
-					padding: { xs: '10px 4px', md: '12px 64px' },
+					// padding: { xs: '10px 4px', md: '12px 64px' },
 				}}
 			>
 				<Toolbar sx={{

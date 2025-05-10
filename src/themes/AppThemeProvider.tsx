@@ -1,4 +1,4 @@
-import { ThemeProvider, createTheme, responsiveFontSizes } from '@mui/material/styles';
+import { Theme, ThemeProvider, createTheme, responsiveFontSizes } from '@mui/material/styles';
 // import { useAppSelector } from '@/app/store';
 // import { PaletteMode } from '@mui/material';
 import React from 'react';
@@ -343,6 +343,20 @@ export const AppThemeProvider: React.FC<Props> = ({ children }) => {
 							fontFamily: `'Lato', sans-serif`,
 						},
 					}),
+				},
+				MuiToolbar: {
+					styleOverrides: {
+						root: ({ theme }: { theme: Theme }) => ({
+							paddingTop: '10px',
+							paddingBottom: '10px',
+							minHeight: '68px',
+							[theme.breakpoints.up('md')]: {
+								paddingTop: '12px',
+								paddingBottom: '12px',
+								minHeight: '80px',
+							},
+						}),
+					},
 				},
 				MuiLink: {
 					styleOverrides: {
