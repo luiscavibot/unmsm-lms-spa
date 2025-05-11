@@ -1,29 +1,11 @@
 // import React from 'react'
-import { AppBar, Toolbar, Stack, Box } from '@mui/material';
-import EscudoBiologiaIcon from '@/assets/icons/EscudoBiologiaIcon';
-import { useTheme } from '@mui/material/styles';
 import LoginForm from '@/features/auth/components/LoginForm';
+import { Stack, Box } from '@mui/material';
+import { AuthLayout } from '@/components/layouts/AuthLayout/AuthLayout';
 
 const Login = () => {
-  const theme = useTheme();
   return (
-    <Stack sx={{ flexDirection: 'column', minHeight: '100vh' }}>
-      <AppBar
-        position="static"
-        sx={{
-          bgcolor: 'transparent',
-          boxShadow: 'none',
-          padding: { xs: '10px 4px', md: '12px 64px' },
-        }}
-      >
-        <Toolbar
-          sx={{
-            color: theme.palette.secondary.darkest,
-          }}
-        >
-          <EscudoBiologiaIcon />
-        </Toolbar>
-      </AppBar>
+    <AuthLayout>
       <Stack
         marginX="auto"
         maxWidth="xl"
@@ -55,7 +37,7 @@ const Login = () => {
           <LoginForm />
         </Stack>
       </Stack>
-    </Stack>
+    </AuthLayout>
   );
 };
 
