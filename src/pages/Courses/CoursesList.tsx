@@ -30,7 +30,7 @@ export default function CoursesList() {
 						<IconButton
 							aria-label="close"
 							color="inherit"
-							size="small"
+							size="medium"
 							onClick={() => {
 								setOpen(false);
 							}}
