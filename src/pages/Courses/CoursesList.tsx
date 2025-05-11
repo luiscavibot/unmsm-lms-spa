@@ -1,6 +1,6 @@
 import { useParams, Navigate } from 'react-router-dom'
 import { MainLayout } from '@/components/layouts/MainLayout/MainLayout'
-import { Breadcrumbs, Link, Typography } from '@mui/material'
+import { Box, Breadcrumbs, Link, Typography } from '@mui/material'
 // import React from 'react'
 const allowedTypes = ['pregrado', 'posgrado']
 import { useTheme } from '@mui/material/styles'
@@ -21,10 +21,12 @@ export default function CoursesList() {
 				</Link>
 				<Typography sx={{ color: 'text.primary' }}>Cursos</Typography>
 			</Breadcrumbs>
-			<Typography sx={{ color: theme.palette.secondary.dark, fontSize: '20px', fontWeight: '700', mb: 3 }} variant="h4">
-				Bioinformática aplicada a la salud pública
-			</Typography>
-			<CardCourse />
+			<Box sx={{ bgcolor: theme.palette.neutral.lightest, p: 3, borderRadius: '8px', mt: 2 }}>
+				<Typography sx={{ color: theme.palette.secondary.dark, fontSize: '20px', fontWeight: '700', mb: 3 }} variant="h4">
+					Bioinformática aplicada a la salud pública
+				</Typography>
+				<CardCourse />
+			</Box>
 		</MainLayout>
 	)
 }
