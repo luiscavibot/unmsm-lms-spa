@@ -1,24 +1,31 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Register from '@/pages/Auth/Register';
 import Login from '@/pages/Auth/Login';
-import AuthTest from '@/pages/courses/AuthTest';
+import Register from '@/pages/Auth/Register';
+import { AuthProvider } from '@/features/auth/providers';
+import RequireAuth from '@/features/auth/components/RequireAuth';
+import RedirectIfAuth from '@/features/auth/components/RedirectIfAuth';
+import Courses from '@/pages/courses/AuthTest';
 
-const Routing = () => {
-  const isAuthenticated = () => {
-    const accessToken = localStorage.getItem('accessToken');
-    return !!accessToken;
-  };
-  return (
+const Routing = () => (
+  <AuthProvider>
     <Routes>
-      <Route
-        path="/"
-        element={isAuthenticated() ? <Navigate replace to="/only-authenticated" /> : <Navigate replace to="/login" />}
-      />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/only-authenticated" element={isAuthenticated() ? <AuthTest /> : <Navigate replace to="/login" />} />
+      <Route path="/" element={<Navigate replace to="/courses" />} />
+
+      {/* Rutas públicas que redirigen si el usuario YA tiene sesión */}
+      <Route element={<RedirectIfAuth redirectTo="/courses" />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Route>
+
+      {/* Rutas protegidas */}
+      <Route element={<RequireAuth />}>
+        <Route path="/courses" element={<Courses />} />
+        {/* ...otras rutas privadas */}
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-  );
-};
+  </AuthProvider>
+);
 
 export default Routing;

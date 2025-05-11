@@ -1,123 +1,123 @@
-import { Box, Button, Divider, IconButton, Stack, TextField, Typography, InputAdornment, Link } from '@mui/material';
+import {
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  Stack,
+  TextField,
+  Typography,
+  InputAdornment,
+  Link,
+  Alert,
+} from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import GoogleIcon from '@/assets/icons/GoogleIcon';
-import { signIn } from '@/services/authService';
-// import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
-export const LoginForm = () => {
-  const [showPassword, setShowPassword] = useState(false);
+const LoginForm = () => {
+  // ─────────────── State local ───────────────
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  //   const [confirmPassword, setConfirmPassword] = useState('');
-  //   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSignIn = async (e: { preventDefault: () => void }) => {
+  // ─────────────── Context & Router ───────────────
+  const { login } = useAuth(); // ← método expuesto por AuthProvider
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as any)?.from?.pathname || '/courses';
+
+  // ─────────────── Handlers ───────────────
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setLoading(true);
+
     try {
-      const session = await signIn(email, password);
-      console.log('Sign in successful', session);
-      if (session && typeof session.AccessToken !== 'undefined') {
-        localStorage.setItem('accessToken', session.AccessToken);
-        if (localStorage.getItem('accessToken')) {
-          //TODO: ¿POR QUÉ LOCATION HREF Y NO UN NAVIGATE?
-          window.location.href = '/only-authenticated';
-        } else {
-          console.error('Session token was not set properly.');
-        }
-      } else {
-        console.error('SignIn session or AccessToken is undefined.');
-      }
-    } catch (error) {
-      alert(`Sign in failed: ${error}`);
+      await login(email, password); // ← credenciales
+      navigate(from, { replace: true }); // volver a la ruta original
+    } catch (err: any) {
+      setError(err.message ?? 'Ocurrió un error inesperado');
+    } finally {
+      setLoading(false);
     }
   };
 
+  // ─────────────── UI ───────────────
   return (
-    <Box width={{ xs: 'auto', sm: '310px' }} maxWidth="100%">
-      <Typography
-        sx={{ maxWidth: '183px', textAlign: 'center', marginX: 'auto', mb: '8px' }}
-        variant="h2"
-        fontSize={{ xs: 16, md: 24 }}
-        fontWeight={800}
-      >
-        ¡Bienvenido/a <br /> a tu aula virtual!
+    <Box width={{ xs: 'auto', sm: 320 }} mx="auto">
+      <Typography variant="h2" fontWeight={800} textAlign="center" mb={1}>
+        ¡Bienvenido/a a tu aula virtual!
+      </Typography>
+      <Typography variant="body2" textAlign="center" mb={3}>
+        Ingresa para acceder a tus cursos y materiales en línea.
       </Typography>
 
-      <Typography variant="body2" sx={{ mb: 3, textAlign: 'center' }}>
-        Ingresa para acceder a tus cursos y <br /> materiales en línea.
-      </Typography>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
 
-      <form onSubmit={handleSignIn}>
+      <form onSubmit={handleSubmit} noValidate>
         <Stack spacing={2}>
           <TextField
             label="Correo electrónico"
-            fullWidth
-            id="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
             required
+            autoFocus
           />
 
           <TextField
             label="Contraseña"
+            autoComplete="current-password"
+            name="password"
             type={showPassword ? 'text' : 'password'}
-            fullWidth
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            InputLabelProps={{ shrink: true }}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                  <IconButton
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    onClick={() => setShowPassword((v) => !v)}
+                    edge="end"
+                  >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
               ),
             }}
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            required
           />
 
-          <div>
-            <Link href="#" underline="hover" fontSize="14px" sx={{ display: 'inline-block' }}>
-              Olvidé mi contraseña
-            </Link>
-          </div>
+          <Link href="#" underline="hover" fontSize="0.9rem">
+            Olvidé mi contraseña
+          </Link>
 
-          <Button size="large" variant="contained" fullWidth type="submit">
-            INGRESAR
+          <Button type="submit" variant="contained" disabled={loading}>
+            {loading ? 'Ingresando…' : 'INGRESAR'}
           </Button>
 
           <Divider>o</Divider>
 
-          <Button
-            sx={{
-              bgcolor: 'white',
-              color: '#202124',
-              fontWeight: '600',
-              textTransform: 'initial',
-              height: 48,
-              borderRadius: '12px',
-              border: '1px solid #F7F7F7',
-            }}
-            variant="text"
-            fullWidth
-            startIcon={<GoogleIcon />}
-          >
+          <Button variant="outlined" startIcon={<GoogleIcon />} disabled>
             Inicia sesión con Google
           </Button>
 
-          <Typography variant="body2" align="center">
-            ¿Necesitas una cuenta?{' '}
-            <Link href="#" underline="hover">
-              Contacta a soporte
-            </Link>
+          <Typography variant="body2" textAlign="center">
+            ¿Necesitas una cuenta? <Link href="#">Contacta a soporte</Link>
           </Typography>
         </Stack>
       </form>
     </Box>
   );
 };
+
+export default LoginForm;

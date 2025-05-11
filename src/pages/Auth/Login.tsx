@@ -1,8 +1,8 @@
 // import React from 'react'
-import { LoginForm } from '@/features/auth/components/LoginForm';
 import { AppBar, Toolbar, Stack, Box } from '@mui/material';
 import EscudoBiologiaIcon from '@/assets/icons/EscudoBiologiaIcon';
 import { useTheme } from '@mui/material/styles';
+import LoginForm from '@/features/auth/components/LoginForm';
 
 const Login = () => {
   const theme = useTheme();

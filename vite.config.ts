@@ -30,6 +30,7 @@ export default defineConfig({
       '@/data': '/src/data',
       '@/helper': '/src/helper',
       '@/i18n': '/src/i18n',
+      '@/helpers': '/src/helpers',
     },
   },
 });
