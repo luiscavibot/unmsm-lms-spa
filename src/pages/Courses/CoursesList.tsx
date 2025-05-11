@@ -26,12 +26,6 @@ export default function CoursesList() {
 				<Typography sx={{ color: 'text.primary' }}>Cursos</Typography>
 			</Breadcrumbs>
 			<Collapse in={open}>
-			<Box sx={{ bgcolor: theme.palette.neutral.lightest, p: 3, borderRadius: '8px', mt: 2 }}>
-				<Typography sx={{ color: theme.palette.secondary.dark, fontSize: '20px', fontWeight: '700', mb: 3 }} variant="h4">
-					Bioinformática aplicada a la salud pública
-				</Typography>
-				<CardCourse />
-			</Box>
 				<Alert
 					icon={false}
 					action={
@@ -125,6 +119,12 @@ export default function CoursesList() {
 					<Button variant='contained' size='large'>Ir a clase</Button>
 				</Alert>
 			</Collapse>
+			<Box sx={{ bgcolor: theme.palette.neutral.lightest, p: 3, borderRadius: '8px', mt: 2 }}>
+				<Typography sx={{ color: theme.palette.secondary.dark, fontSize: '20px', fontWeight: '700', mb: 3 }} variant="h4">
+					Bioinformática aplicada a la salud pública
+				</Typography>
+				<CardCourse />
+			</Box>
 		</MainLayout>
 	)
 }
