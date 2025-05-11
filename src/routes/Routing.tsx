@@ -29,10 +29,10 @@ const Routing = () => (
       </Route>
 
       {/* Rutas protegidas */}
-      {/* <Route element={<RequireAuth />}> */}
+      <Route element={<RequireAuth />}>
         <Route path="/courses" element={<Courses />} />
         <Route path="/courses/:type" element={<CoursesList />} />
-      {/* </Route> */}
+      </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
