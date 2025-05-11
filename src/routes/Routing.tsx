@@ -4,7 +4,7 @@ import Register from '@/pages/Auth/Register';
 import { AuthProvider } from '@/features/auth/providers';
 import RequireAuth from '@/features/auth/components/RequireAuth';
 import RedirectIfAuth from '@/features/auth/components/RedirectIfAuth';
-import Courses from '@/pages/courses/AuthTest';
+import Courses from '@/pages/Courses/AuthTest';
 import ForgotPassword from '@/pages/Auth/ForgotPassword';
 import ForgotPasswordConfirmation from '@/pages/Auth/ForgotPasswordConfirmation';
 import ResetPassword from '@/pages/Auth/ResetPassword';

@@ -1,6 +1,8 @@
 import React from 'react'
 import { useParams, Navigate } from 'react-router-dom'
 import { MainLayout } from '@/components/layouts/MainLayout/MainLayout'
+// import React from 'react'
+import CardCourse from '@/components/common/CardCourse'
 import { Alert, Box, Breadcrumbs, Button, Collapse, IconButton, Link, Typography } from '@mui/material'
 const allowedTypes = ['pregrado', 'posgrado']
 import { useTheme } from '@mui/material/styles'
@@ -117,6 +119,12 @@ export default function CoursesList() {
 					<Button variant='contained' size='large'>Ir a clase</Button>
 				</Alert>
 			</Collapse>
+			<Box sx={{ bgcolor: theme.palette.neutral.lightest, p: 3, borderRadius: '8px', mt: 2 }}>
+				<Typography sx={{ color: theme.palette.secondary.dark, fontSize: '20px', fontWeight: '700', mb: 3 }} variant="h4">
+					Bioinformática aplicada a la salud pública
+				</Typography>
+				<CardCourse />
+			</Box>
 		</MainLayout>
 	)
 }
