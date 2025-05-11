@@ -1,7 +1,28 @@
-import React from 'react';
+import { Box, Button, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 
-function Courses() {
-  return <div>Esta ruta es accesible solo si el usuario está logueado</div>;
-}
+const AuthTest = () => {
+  const { user, logout } = useAuth();
+  console.log('user', user);
+  const navigate = useNavigate();
 
-export default Courses;
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
+
+  return (
+    <Box p={4}>
+      <Typography variant="h4" gutterBottom>
+        ¡Hola, {user?.email ?? 'usuario'}!
+      </Typography>
+
+      <Button variant="outlined" color="secondary" onClick={handleLogout}>
+        Cerrar sesión
+      </Button>
+    </Box>
+  );
+};
+
+export default AuthTest;

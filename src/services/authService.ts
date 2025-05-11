@@ -22,7 +22,6 @@ export async function signIn(email: string, password: string): Promise<Tokens> {
     }),
   );
 
-  // ⬇️ verificación exhaustiva
   const res = AuthenticationResult as AuthenticationResultType | undefined;
 
   if (!res?.AccessToken || !res.IdToken || !res.RefreshToken) {
