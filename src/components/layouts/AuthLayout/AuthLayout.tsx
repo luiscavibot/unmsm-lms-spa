@@ -15,13 +15,13 @@ export const AuthLayout = ({ children }: AuthLayoutProps) => {
 			<AppBar
 				position="static"
 				sx={{
-					bgcolor: 'transparent',
+					bgcolor: 'primary.darkest',
 					boxShadow: 'none',
 					// padding: { xs: '10px 4px', md: '12px 64px' },
 				}}
 			>
 				<Toolbar sx={{
-					color: theme.palette.secondary.darkest,
+					color: theme.palette.neutral.lightest,
 				}}>
 					<Link to="/" style={{ display: 'inline-flex', alignItems: 'center', color: 'inherit' }}>
 						<EscudoBiologiaIcon />
