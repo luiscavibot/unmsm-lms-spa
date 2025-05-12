@@ -2,7 +2,7 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import FullPageSpinner from './FullPageSpinner';
-import { useAuth } from '../hooks/useAuth';
+import { useAppSelector } from '@/store/hooks';
 
 /**
  * Envuelve rutas públicas; si el usuario YA está logueado
@@ -14,10 +14,19 @@ import { useAuth } from '../hooks/useAuth';
  *   </Route>
  */
 const RedirectIfAuth: React.FC<{ redirectTo?: string }> = ({ redirectTo = '/courses' }) => {
-  const { accessToken, loading } = useAuth();
+  // Leemos el token y el estado de carga desde Redux
+  const accessToken = useAppSelector((state) => state.auth.accessToken);
+  const status = useAppSelector((state) => state.auth.status);
+  const loading = status === 'loading';
 
-  if (loading) return <FullPageSpinner />;
-  if (accessToken) return <Navigate to={redirectTo} replace />;
+  if (loading) {
+    return <FullPageSpinner />;
+  }
+
+  if (accessToken) {
+    return <Navigate to={redirectTo} replace />;
+  }
+
   return <Outlet />;
 };
 

@@ -1,14 +1,17 @@
+// src/pages/courses/AuthTest.tsx
+import React from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { logout } from '@/store/slices/authSlice';
 
-const AuthTest = () => {
-  const { user, logout } = useAuth();
-  console.log('user', user);
+const AuthTest: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.auth.user);
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();
+    dispatch(logout());
     navigate('/login', { replace: true });
   };
 

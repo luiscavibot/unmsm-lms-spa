@@ -3,7 +3,6 @@ import {
   InitiateAuthCommand,
   type AuthenticationResultType,
 } from '@aws-sdk/client-cognito-identity-provider';
-import config from '@/features/auth/cognito-config.json';
 
 export interface Tokens {
   idToken: string;
@@ -11,13 +10,13 @@ export interface Tokens {
   refreshToken: string;
 }
 
-const client = new CognitoIdentityProviderClient({ region: config.region });
+const client = new CognitoIdentityProviderClient({ region: import.meta.env.VITE_AWS_REGION });
 
 export async function signIn(email: string, password: string): Promise<Tokens> {
   const { AuthenticationResult } = await client.send(
     new InitiateAuthCommand({
       AuthFlow: 'USER_PASSWORD_AUTH',
-      ClientId: config.clientId,
+      ClientId: import.meta.env.VITE_AWS_COGNITO_CLIENT_ID,
       AuthParameters: { USERNAME: email, PASSWORD: password },
     }),
   );
