@@ -1,21 +1,27 @@
 import React from 'react'
 import { useParams, Navigate } from 'react-router-dom'
 import { MainLayout } from '@/components/layouts/MainLayout/MainLayout'
-// import React from 'react'
-import CardCourse from '@/components/common/CardCourse'
-import { Alert, Box, Breadcrumbs, Button, Collapse, IconButton, Link, Typography } from '@mui/material'
+import { Breadcrumbs, Link, Typography } from '@mui/material'
 const allowedTypes = ['pregrado', 'posgrado']
-import { useTheme } from '@mui/material/styles'
-import { Close, Sensors } from '@mui/icons-material'
+import AlertBanner from '@/features/courses/components/AlertBanner'
+import CoursesTabs from '@/features/courses/components/CoursesTabs'
+import TabPanel from '@/features/courses/components/TabPanel'
+import MasterDegreesView from '@/features/courses/views/MasterDegreesView'
+import DoctoratesView from '@/features/courses/views/DoctoratesView'
+import DiplomasView from '@/features/courses/views/DiplomasView'
+import SpecialtiesView from '@/features/courses/views/SpecialtiesView'
 
 export default function CoursesList() {
-	const theme = useTheme()
 	const { type } = useParams()
 	if (!allowedTypes.includes(type || '')) {
 		return <Navigate to="/404" replace />
 	}
 
 	const [open, setOpen] = React.useState(true);
+	const [value, setValue] = React.useState(2);
+	const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+		setValue(newValue);
+	};
 
 	return (
 		<MainLayout>
@@ -25,106 +31,21 @@ export default function CoursesList() {
 				</Link>
 				<Typography sx={{ color: 'text.primary' }}>Cursos</Typography>
 			</Breadcrumbs>
-			<Collapse in={open}>
-				<Alert
-					icon={false}
-					action={
-						<IconButton
-							aria-label="close"
-							color="inherit"
-							size="medium"
-							onClick={() => {
-								setOpen(false);
-							}}
-						>
-							<Close fontSize="inherit" />
-						</IconButton>
-					}
-					sx={{
-						mb: 2,
-						backgroundColor: theme.palette.secondary.darkest,
-						color: theme.palette.neutral.lightest,
-						borderRadius: '24px',
-						display: 'flex',
-						flexDirection: 'row',
-						justifyContent: 'space-between',
-						alignItems: 'center',
-						padding: '64px',
-						position: 'relative',
-						'.MuiAlert-message': {
-							width: '100%',
-							display: 'flex',
-							flexDirection: 'row',
-							alignItems: 'center',
-							justifyContent: 'space-between',
-						},
-						'.MuiAlert-action': {
-							position: 'absolute',
-							right: '24px',
-							top: '16px',
-						},
-					}}
-				>
-					<Box sx={{ maxWidth: 550 }}>
-						<Typography
-							sx={{
-								color: theme.palette.neutral.lightest,
-								fontSize: 32,
-								fontWeight: 700,
-								lineHeight: 1,
-								mb: '4px',
-							}}
-						>
-							¡Atención!
-							{' '}
-							<Typography
-								component="span"
-								sx={{
-									color: 'inherit',
-									fontSize: 'inherit',
-									fontWeight: 'inherit',
-									textDecoration: 'underline',
-									textUnderlineOffset: 8,
-									textDecorationThickness: 2,
-								}}
-							>
-								Genómica Evolutiva
-							</Typography>
-							{' '}
-							está por comenzar.
-						</Typography>
-						<Typography
-							sx={{
-								color: theme.palette.neutral.lightest,
-								fontSize: 24,
-								fontWeight: 400,
-							}}
-						>
-							Prepárate para seguir aprendiendo.
-						</Typography>
-						<Typography
-							sx={{
-								color: theme.palette.neutral.lightest,
-								fontSize: 20,
-								fontWeight: 700,
-								mt: '16px',
-								display: 'flex',
-								alignItems: 'center',
-							}}
-						>
-							<Sensors fontSize="medium" sx={{ mr: '6px', color: '#F44336' }} />
-							<span>Horario: 6:00pm</span>
-						</Typography>
-					</Box>
-					<Button variant='contained' size='large'>Ir a clase</Button>
-				</Alert>
-			</Collapse>
-			<Box sx={{ bgcolor: theme.palette.neutral.lightest, p: 3, borderRadius: '8px', mt: 2 }}>
-				<Typography sx={{ color: theme.palette.secondary.dark, fontSize: '20px', fontWeight: '700', mb: 3 }} variant="h4">
-					Bioinformática aplicada a la salud pública
-				</Typography>
-				<CardCourse />
-			</Box>
+			<AlertBanner open={open} onClose={() => setOpen(false)} />
+			<CoursesTabs value={value} onChange={handleChange} />
+			<TabPanel value={value} index={0}>
+				<MasterDegreesView />
+			</TabPanel>
+			<TabPanel value={value} index={1}>
+				<DoctoratesView />
+			</TabPanel>
+			<TabPanel value={value} index={2}>
+				<DiplomasView />
+			</TabPanel>
+			<TabPanel value={value} index={3}>
+				<SpecialtiesView />
+			</TabPanel>
+			
 		</MainLayout>
 	)
 }
