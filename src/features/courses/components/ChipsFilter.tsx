@@ -13,7 +13,7 @@ const ChipsFilter = ({ active, onChange, options = ['vigentes', 'finalizados'] }
 	const theme = useTheme()
 
 	return (
-		<Box sx={{ mb: 5 }}>
+		<Box>
 		{options.map((option) => (
 			<Chip
 			key={option}
