@@ -1,3 +1,4 @@
+// src/pages/Auth/LoginForm.tsx
 import {
   Box,
   Button,
@@ -9,48 +10,49 @@ import {
   InputAdornment,
   Link,
   Alert,
+  CircularProgress,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useState } from 'react';
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import GoogleIcon from '@/assets/icons/GoogleIcon';
-import { useAuth } from '../hooks/useAuth';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { loginAsync } from '@/store/thunks/loginAsync';
 
 const LoginForm = () => {
-  // ─────────────── State local ───────────────
+  // ─── Redux dispatch & selector ───
+  const dispatch = useAppDispatch();
+  const { status, error: authError } = useAppSelector((state) => state.auth);
+  const loading = status === 'loading';
+
+  // ─── Local state ───
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  // ─────────────── Context & Router ───────────────
-  const { login } = useAuth();
+  // ─── Router ───
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as any)?.from?.pathname || '/courses';
 
-  // ─────────────── Handlers ───────────────
-  const handleSubmit = async (e: React.FormEvent) => {
+  // ─── Submit handler ───
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
-
-    try {
-      await login(email, password);
-      navigate(from, { replace: true });
-    } catch (err: any) {
-      setError(err.message ?? 'Ocurrió un error inesperado');
-    } finally {
-      setLoading(false);
-    }
+    dispatch(loginAsync({ email, password }))
+      .unwrap()
+      .then(() => {
+        navigate(from, { replace: true });
+      })
+      .catch(() => {
+        // El error ya está en authError
+      });
   };
 
-  // ─────────────── UI ───────────────
+  // ─── JSX ───
   return (
-    <Box width={{ xs: 'auto', sm: '310px' }} maxWidth="100%">
+    <Box width={{ xs: 'auto', sm: 310 }} maxWidth="100%" mx="auto">
       <Typography
-        sx={{ maxWidth: '183px', textAlign: 'center', marginX: 'auto', mb: '8px' }}
+        sx={{ maxWidth: 183, textAlign: 'center', mx: 'auto', mb: 1 }}
         variant="h2"
         fontSize={{ xs: 16, md: 24 }}
         fontWeight={800}
@@ -62,94 +64,87 @@ const LoginForm = () => {
         Ingresa para acceder a tus cursos y <br /> materiales en línea.
       </Typography>
 
-      {error && (
+      {authError && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
+          {authError}
         </Alert>
       )}
 
-      <Stack spacing={2}>
-        <Box component="form" onSubmit={handleSubmit} noValidate>
-          <Stack spacing={2}>
-            <TextField
-              label="Correo electrónico"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoFocus
-              fullWidth
-            />
+      <Box component="form" onSubmit={handleSubmit} noValidate>
+        <Stack spacing={2}>
+          <TextField
+            label="Correo electrónico"
+            type="email"
+            name="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoFocus
+            fullWidth
+          />
 
-            <TextField
-              fullWidth
-              label="Contraseña"
-              autoComplete="current-password"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              InputLabelProps={{ shrink: true }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                      onClick={() => setShowPassword((v) => !v)}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
+          <TextField
+            fullWidth
+            label="Contraseña"
+            name="password"
+            autoComplete="current-password"
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            InputLabelProps={{ shrink: true }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    onClick={() => setShowPassword((v) => !v)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
 
-            <div>
-              <Link
-                component={RouterLink}
-                to="/forgot-password"
-                underline="hover"
-                fontSize="14px"
-                sx={{ display: 'inline-block' }}
-              >
-                Olvidé mi contraseña
-              </Link>
-            </div>
-
-            <Button type="submit" variant="contained" disabled={loading}>
-              {loading ? 'Ingresando…' : 'INGRESAR'}
-            </Button>
-          </Stack>{' '}
-        </Box>
-        <Divider>o</Divider>
-
-        <Button
-          sx={{
-            bgcolor: 'white',
-            color: '#202124',
-            fontWeight: '600',
-            textTransform: 'initial',
-            height: 48,
-            borderRadius: '12px',
-            border: '1px solid #F7F7F7',
-          }}
-          variant="text"
-          fullWidth
-          startIcon={<GoogleIcon />}
-          disabled
-        >
-          Inicia sesión con Google
-        </Button>
-
-        <Typography variant="body2" align="center">
-          ¿Necesitas una cuenta?{' '}
-          <Link href="#" underline="hover">
-            Contacta a soporte
+          <Link component={RouterLink} to="/forgot-password" underline="hover" fontSize="0.9rem">
+            Olvidé mi contraseña
           </Link>
-        </Typography>
-      </Stack>
+
+          <Button type="submit" variant="contained" disabled={loading} fullWidth>
+            {loading ? <CircularProgress size={24} color="inherit" /> : 'INGRESAR'}
+          </Button>
+        </Stack>
+      </Box>
+
+      <Divider sx={{ my: 2 }}>o</Divider>
+
+      <Button
+        sx={{
+          bgcolor: 'white',
+          color: '#202124',
+          fontWeight: 600,
+          textTransform: 'none',
+          height: 48,
+          borderRadius: '12px',
+          border: '1px solid #F7F7F7',
+        }}
+        variant="text"
+        fullWidth
+        startIcon={<GoogleIcon />}
+        disabled
+      >
+        Inicia sesión con Google
+      </Button>
+
+      <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+        ¿Necesitas una cuenta?{' '}
+        <Link href="#" underline="hover">
+          Contacta a soporte
+        </Link>
+      </Typography>
     </Box>
   );
 };

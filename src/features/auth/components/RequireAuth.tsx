@@ -1,15 +1,14 @@
+// src/components/RequireAuth.tsx
+import { useAppSelector } from '@/store/hooks';
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import FullPageSpinner from './FullPageSpinner';
 
 const RequireAuth: React.FC = () => {
-  const { accessToken, loading } = useAuth();
+  const token = useAppSelector((s) => s.auth.accessToken);
   const location = useLocation();
 
-  if (loading) return <FullPageSpinner />;
-
-  return accessToken ? <Outlet /> : <Navigate to="/login" replace state={{ from: location }} />;
+  // Si hay token, renderiza las rutas hijas; si no, fuerza login
+  return token ? <Outlet /> : <Navigate to="/login" replace state={{ from: location }} />;
 };
 
 export default RequireAuth;
