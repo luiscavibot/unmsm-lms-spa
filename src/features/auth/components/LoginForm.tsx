@@ -10,6 +10,7 @@ import {
   InputAdornment,
   Link,
   Alert,
+  CircularProgress,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useState } from 'react';
@@ -113,7 +114,7 @@ const LoginForm = () => {
           </Link>
 
           <Button type="submit" variant="contained" disabled={loading} fullWidth>
-            {loading ? 'Ingresando…' : 'INGRESAR'}
+            {loading ? <CircularProgress size={24} color="inherit" /> : 'INGRESAR'}
           </Button>
         </Stack>
       </Box>
