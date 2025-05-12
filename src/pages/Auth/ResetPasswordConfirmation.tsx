@@ -46,7 +46,7 @@ export default function ResetPasswordConfirmation() {
             </Typography>
             <Box
               component="img"
-              src="/src/assets/images/operacion-exitosa.png"
+              src="/images/operacion-exitosa.png"
               alt="Operación exitosa"
               sx={{
                 display: 'block',
