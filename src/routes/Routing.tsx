@@ -9,15 +9,10 @@ import ForgotPasswordConfirmation from '@/pages/Auth/ForgotPasswordConfirmation'
 import ResetPassword from '@/pages/Auth/ResetPassword';
 import ResetPasswordConfirmation from '@/pages/Auth/ResetPasswordConfirmation';
 import CoursesList from '@/pages/Courses/CoursesList';
-import AuthTest from '@/pages/courses/AuthTest';
-
 const Routing: React.FC = () => (
   <Routes>
     {/* Redirect root */}
     <Route path="/" element={<Navigate replace to="/courses/posgrado" />} />
-
-    {/* Ruta de prueba (o pública) */}
-    <Route path="/auth-test" element={<AuthTest />} />
 
     {/* Rutas públicas sin guard */}
     <Route path="/forgot-password" element={<ForgotPassword />} />

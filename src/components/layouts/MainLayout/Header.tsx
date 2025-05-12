@@ -18,6 +18,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { toggleDrawer } from '@/store/slices/uiSlice';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
+import { getInitials } from '@/utils/avatar';
+import { logoutAsync } from '@/store/thunks/logoutAsync';
 
 // const drawerWidth = 240;
 
@@ -50,6 +52,9 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 
 export default function Header() {
   const user = useAppSelector((state) => state.auth.user);
+  const name = user?.name ?? '';
+  const initials = getInitials(name);
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const theme = useTheme();
@@ -65,8 +70,9 @@ export default function Header() {
     setAnchorEl(null);
   };
   const handleCerrarSesion = () => {
-    setAnchorEl(null);
-    navigate('/');
+    dispatch(logoutAsync())
+      .unwrap()
+      .then(() => navigate('/login', { replace: true }));
   };
   const handleToggleDrawer = () => {
     dispatch(toggleDrawer());
@@ -132,7 +138,7 @@ export default function Header() {
               aria-haspopup="true"
               aria-expanded={open ? 'true' : undefined}
             >
-              <Avatar sx={{ width: 32, height: 32 }}>NR</Avatar>
+              <Avatar>{initials}</Avatar>
             </IconButton>
           </Box>
           <Menu
@@ -173,9 +179,9 @@ export default function Header() {
             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
           >
             <Box sx={{ px: 2, pb: 2 }}>
-              <Typography sx={{ color: theme.palette.neutral.dark }}>Natalia Ramos</Typography>
+              <Typography sx={{ color: theme.palette.neutral.dark }}>{user?.name || 'Usuario'}</Typography>
               <Typography variant="body3" sx={{ color: theme.palette.neutral.dark }}>
-                natalia.ramos@unmsm.edu.pe
+                {user?.email}
               </Typography>
             </Box>
             <Divider />
