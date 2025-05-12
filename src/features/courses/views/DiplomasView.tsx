@@ -62,7 +62,23 @@ const DiplomasView = () => {
 			<Typography sx={{ color: theme.palette.secondary.dark, fontSize: '20px', fontWeight: '700', mb: 3 }} variant="h4">
 				Bioinformática aplicada a la salud pública
 			</Typography>
-			<CardCourse />
+			<Stack direction="row" flexWrap="wrap" spacing={2} mb={4} useFlexGap>
+				<Box sx={{ flex: '1 1 30%', minWidth: 280, maxWidth: '32%', display: 'flex', justifyContent: 'center', }}>
+					<CardCourse />
+				</Box>
+				<Box sx={{ flex: '1 1 30%', minWidth: 280, maxWidth: '32%', display: 'flex', justifyContent: 'center', }}>
+					<CardCourse />
+				</Box>
+				<Box sx={{ flex: '1 1 30%', minWidth: 280, maxWidth: '32%', display: 'flex', justifyContent: 'center', }}>
+					<CardCourse />
+				</Box>
+				<Box sx={{ flex: '1 1 30%', minWidth: 280, maxWidth: '32%', display: 'flex', justifyContent: 'center', }}>
+					<CardCourse />
+				</Box>
+				<Box sx={{ flex: '1 1 30%', minWidth: 280, maxWidth: '32%', display: 'flex', justifyContent: 'center', }}>
+					<CardCourse status='sin-iniciar' />
+				</Box>
+			</Stack>
 		</Box>
 	)
 }

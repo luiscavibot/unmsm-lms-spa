@@ -1,13 +1,36 @@
 import React from 'react'
-import { Avatar, Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material'
+import { Avatar, Box, Card, CardContent, Chip, Divider, Stack, Typography } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 
-export default function CardCourse() {
+interface CardCourseProps {
+	status?: 'sin-iniciar' | 'activo'
+}
+
+export default function CardCourse({ status = 'activo' }: CardCourseProps) {
 	const theme = useTheme()
 	return (
 		<Box sx={{ width: '100%', maxWidth: '344px' }}>
-			<Card variant="outlined">
+			<Card
+				variant="outlined"
+				sx={{
+					bgcolor: status === 'sin-iniciar' ? theme.palette.neutral.light : 'background.paper',
+				}}
+			>
 				<CardContent>
+					{status === 'sin-iniciar' && (
+						<Chip
+							label="Sin iniciar"
+							size="small"
+							sx={{
+								fontSize: '12px',
+								fontWeight: 400,
+								color: theme.palette.secondary.dark,
+								borderColor: theme.palette.secondary.dark,
+								mb: 1,
+							}}
+							variant="outlined"
+						/>
+					)}
 					<Typography gutterBottom sx={{ color: theme.palette.secondary.dark, fontSize: '16px', fontWeight: '700', mb: '12px', lineHeight: '1.2' }}>
 						Bioinformática Aplicada a la Vigilancia Genómica
 					</Typography>
@@ -25,7 +48,7 @@ export default function CardCourse() {
 						</Box>
 					</Stack>
 					<Divider sx={{ mb: 2 }} />
-					<Stack direction="column" sx={{ gap: '44px 0px' }}>
+					<Stack direction="column" sx={{ gap: status === 'sin-iniciar' ? '12px 0px' : '44px 0px' }}>
 						<Stack direction="column" spacing={'4px'}>
 							<Typography variant="body2">
 								Inicio: 01/03/2025
