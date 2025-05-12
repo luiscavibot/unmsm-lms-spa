@@ -138,7 +138,7 @@ export default function Header() {
               aria-haspopup="true"
               aria-expanded={open ? 'true' : undefined}
             >
-              <Avatar>{initials}</Avatar>
+              <Avatar sx={{ bgcolor: theme.palette.primary.main }}>{initials}</Avatar>
             </IconButton>
           </Box>
           <Menu
