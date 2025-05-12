@@ -22,7 +22,7 @@ const Login = () => {
       >
         <Box
           component="img"
-          src="/src/assets/images/bg-login.png"
+          src="/images/bg-login.png"
           alt="bg-login"
           sx={{
             display: { xs: 'none', md: 'block' },
