@@ -44,6 +44,7 @@ const authSlice = createSlice({
         state.accessToken = payload.accessToken;
         state.idToken = payload.idToken;
         state.refreshToken = payload.refreshToken;
+        state.user = decode<CognitoIdTokenPayload>(payload.idToken);
         localStorage.setItem('accessToken', payload.accessToken);
         localStorage.setItem('idToken', payload.idToken);
         localStorage.setItem('refreshToken', payload.refreshToken);

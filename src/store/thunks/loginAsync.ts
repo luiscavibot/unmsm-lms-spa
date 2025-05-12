@@ -5,8 +5,7 @@ export const loginAsync = createAsyncThunk<Tokens, { email: string; password: st
   'auth/login',
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      const tokens = await signIn(email, password);
-      return tokens;
+      return await signIn(email, password);
     } catch (err: any) {
       return rejectWithValue(err.message);
     }
