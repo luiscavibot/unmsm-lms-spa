@@ -1,7 +1,8 @@
 import { createContext } from 'react';
+import { CognitoIdTokenPayload } from '../interfaces/Cognito';
 
 const AuthContext = createContext<{
-  user: any | null;
+  user: CognitoIdTokenPayload | null;
   idToken: string | null;
   accessToken: string | null;
   loading: boolean;

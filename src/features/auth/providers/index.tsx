@@ -9,6 +9,7 @@ import AuthContext from '../contexts';
 import { decode, isExpired } from '@/helpers/jwt';
 import { signIn, Tokens } from '@/services/authService';
 import { jwtDecode } from 'jwt-decode';
+import { CognitoIdTokenPayload } from '../interfaces/Cognito';
 
 const client = new CognitoIdentityProviderClient({
   region: import.meta.env.VITE_REGION,
@@ -19,7 +20,7 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
   const [idToken, setIdToken] = useState<string | null>(localStorage.getItem('idToken'));
   const [accessToken, setAccessToken] = useState<string | null>(localStorage.getItem('accessToken'));
   const [refreshToken, setRefreshToken] = useState<string | null>(localStorage.getItem('refreshToken'));
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<CognitoIdTokenPayload | null>(null);
   const [loading, setLoading] = useState(true);
 
   /* ─────────── re-ingreso automático ─────────── */
@@ -51,7 +52,6 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
     };
 
     tryRestore();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /* ─────────── login credenciales ─────────── */

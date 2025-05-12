@@ -4,17 +4,19 @@ import Register from '@/pages/Auth/Register';
 import { AuthProvider } from '@/features/auth/providers';
 import RequireAuth from '@/features/auth/components/RequireAuth';
 import RedirectIfAuth from '@/features/auth/components/RedirectIfAuth';
-import Courses from '@/pages/Courses/AuthTest';
+// import Courses from '@/pages/Courses/AuthTest';
 import ForgotPassword from '@/pages/Auth/ForgotPassword';
 import ForgotPasswordConfirmation from '@/pages/Auth/ForgotPasswordConfirmation';
 import ResetPassword from '@/pages/Auth/ResetPassword';
 import ResetPasswordConfirmation from '@/pages/Auth/ResetPasswordConfirmation';
 import CoursesList from '@/pages/Courses/CoursesList';
+import AuthTest from '@/pages/courses/AuthTest';
 
 const Routing = () => (
   <AuthProvider>
     <Routes>
-      <Route path="/" element={<Navigate replace to="/courses" />} />
+      <Route path="/" element={<Navigate replace to="/courses/posgrado" />} />
+      <Route path="/auth-test" element={<AuthTest />} />
 
       {/* Rutas públicas  */}
       <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -30,7 +32,7 @@ const Routing = () => (
 
       {/* Rutas protegidas */}
       <Route element={<RequireAuth />}>
-        <Route path="/courses" element={<Courses />} />
+        {/* <Route path="/courses" element={<Courses />} /> */}
         <Route path="/courses/:type" element={<CoursesList />} />
       </Route>
 
