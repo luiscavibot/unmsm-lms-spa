@@ -1,12 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { UIState } from './types';
+import { SliceNames } from '../sliceNames';
 
 const initialState: UIState = {
   drawerOpen: true,
 };
 
 const uiSlice = createSlice({
-  name: 'ui',
+  name: SliceNames.UI,
   initialState,
   reducers: {
     openDrawer: (state) => {

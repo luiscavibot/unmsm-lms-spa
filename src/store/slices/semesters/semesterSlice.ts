@@ -1,12 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { SemestersState } from './types';
-import lab from '@/services/apiLabels';
 import { ISemesterResp } from '@/services/semesters/types';
+import { SliceNames } from '../sliceNames';
 
 const initialState: SemestersState = { list: [] };
 
 const semestersSlice = createSlice({
-  name: lab.Semesters,
+  name: SliceNames.Semesters,
   initialState,
   reducers: {
     setSemesters(state, action: PayloadAction<ISemesterResp>) {

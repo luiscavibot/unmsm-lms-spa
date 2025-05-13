@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 import { confirmPasswordResetAsync, forgotPasswordAsync } from '../../thunks/password';
 import { PasswordState } from './types';
+import { SliceNames } from '../sliceNames';
 
 const initialState: PasswordState = {
   forgotStatus: 'idle',
@@ -15,7 +16,7 @@ const initialState: PasswordState = {
 // 1️⃣ Thunk: solicita el envío de código
 
 const passwordSlice = createSlice({
-  name: 'password',
+  name: SliceNames.Password,
   initialState,
   reducers: {
     // limpia estado si el usuario abandona el flujo
