@@ -1,4 +1,3 @@
-import React from 'react';
 import { Alert, Box, Button, Collapse, IconButton, Typography } from '@mui/material';
 import { Close, Sensors } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';

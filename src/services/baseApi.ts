@@ -1,7 +1,8 @@
 import { RootState } from '@/store/store';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import lab from '@/services/apiLabels';
 
-export const api = createApi({
+export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_API_URL,
@@ -13,15 +14,7 @@ export const api = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Course', 'User'],
-  endpoints: (builder) => ({
-    getCourses: builder.query<any[], void>({
-      query: () => '/courses',
-      providesTags: (result) =>
-        result ? [...result.map(({ id }) => ({ type: 'Course' as const, id })), 'Course'] : ['Course'],
-    }),
-    // …otros endpoints…
-  }),
-});
 
-export const { useGetCoursesQuery } = api;
+  tagTypes: [lab.Courses, lab.Semesters, lab.Users],
+  endpoints: () => ({}),
+});

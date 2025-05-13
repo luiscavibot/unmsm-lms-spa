@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { toggleDrawer } from '@/store/slices/uiSlice';
+import { toggleDrawer } from '@/store/slices/ui/uiSlice';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import { getInitials } from '@/utils/avatar';
 import { logoutAsync } from '@/store/thunks/logoutAsync';
@@ -116,7 +116,10 @@ export default function Header() {
           >
             <MenuIcon />
           </IconButton>
-          <Link to="/courses/posgrado" style={{ display: 'inline-flex', alignItems: 'center', color: 'inherit' }}>
+          <Link
+            to="/courses/posgrado"
+            style={{ display: 'inline-flex', alignItems: 'center', color: 'inherit' }}
+          >
             <EscudoBiologiaIcon />
           </Link>
         </Box>
@@ -127,7 +130,10 @@ export default function Header() {
               alignItems: 'center',
             }}
           >
-            <Typography component="span" sx={{ fontSize: 14, fontWeight: 600, color: theme.palette.neutral.lightest }}>
+            <Typography
+              component="span"
+              sx={{ fontSize: 14, fontWeight: 600, color: theme.palette.neutral.lightest }}
+            >
               {user?.name || 'Usuario'}
             </Typography>
             <IconButton

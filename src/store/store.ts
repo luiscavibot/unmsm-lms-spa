@@ -1,16 +1,28 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import uiReducer from './slices/uiSlice';
-import authReducer from '@/store/slices/authSlice';
-import passwordReducer from '@/store/slices/passwordSlice';
+import uiReducer from './slices/ui/uiSlice';
+import authReducer from '@/store/slices/auth/authSlice';
+import passwordReducer from '@/store/slices/password/passwordSlice';
+import semestersReducer from '@/store/slices/semesters/semesterSlice';
 import storage from 'redux-persist/lib/storage';
-import { api } from '@/services/api';
-import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
+
+import { baseApi } from '@/services/baseApi';
+import {
+  persistStore,
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from 'redux-persist';
 
 const rootReducer = combineReducers({
   ui: uiReducer,
   auth: authReducer,
   password: passwordReducer,
-  [api.reducerPath]: api.reducer,
+  semesters: semestersReducer,
+  [baseApi.reducerPath]: baseApi.reducer,
 });
 const persistConfig = {
   key: 'root',
@@ -27,7 +39,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(api.middleware),
+    }).concat(baseApi.middleware),
 });
 
 export const persistor = persistStore(store);

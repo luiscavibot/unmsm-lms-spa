@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { validateEmail } from '@/utils/validators';
 import { useNavigate } from 'react-router-dom';
 import { forgotPasswordAsync } from '@/store/thunks/password';
-import { clearPasswordState } from '@/store/slices/passwordSlice';
+import { clearPasswordState } from '@/store/slices/password/passwordSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
 export const ForgotPasswordForm = () => {
