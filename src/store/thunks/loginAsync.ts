@@ -1,13 +1,59 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { signIn, Tokens } from '@/services/authService';
+import { CognitoIdentityProviderClient, InitiateAuthCommand } from '@aws-sdk/client-cognito-identity-provider';
+import { AuthFlowName, ChallengeName } from '@/features/auth/interfaces/Cognito';
 
-export const loginAsync = createAsyncThunk<Tokens, { email: string; password: string }, { rejectValue: string }>(
+interface LoginSuccess {
+  idToken: string;
+  accessToken: string;
+  refreshToken?: string;
+}
+
+interface PasswordChallengeResponse {
+  challengeName: ChallengeName;
+  session: string;
+  username: string;
+}
+
+type LoginResponse = Partial<LoginSuccess> & Partial<PasswordChallengeResponse>;
+
+interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export const loginAsync = createAsyncThunk<LoginResponse, LoginRequest, { rejectValue: string }>(
   'auth/login',
-  async ({ email, password }, { rejectWithValue }) => {
+  async ({ username, password }, { rejectWithValue }) => {
+    const client = new CognitoIdentityProviderClient({ region: import.meta.env.VITE_AWS_REGION });
     try {
-      return await signIn(email, password);
-    } catch (err: any) {
-      return rejectWithValue(err.message);
+      const resp = await client.send(
+        new InitiateAuthCommand({
+          AuthFlow: AuthFlowName.UserPasswordAuth,
+          ClientId: import.meta.env.VITE_AWS_COGNITO_CLIENT_ID,
+          AuthParameters: { USERNAME: username, PASSWORD: password },
+        }),
+      );
+
+      if (resp.ChallengeName === ChallengeName.NewPasswordRequired) {
+        return {
+          challengeName: ChallengeName.NewPasswordRequired,
+          session: resp.Session,
+          username,
+        };
+      }
+
+      const result = resp.AuthenticationResult;
+      if (!result || !result.AccessToken) {
+        throw new Error('Autenticación falló');
+      }
+      return {
+        idToken: result.IdToken!,
+        accessToken: result.AccessToken!,
+        refreshToken: result.RefreshToken!,
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error de autenticación desconocido';
+      return rejectWithValue(errorMessage);
     }
   },
 );
