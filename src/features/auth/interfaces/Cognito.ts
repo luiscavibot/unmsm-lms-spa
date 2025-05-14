@@ -1,11 +1,4 @@
-// src/types/Cognito.ts
-/**
- *  Shape del ID-Token que entrega Amazon Cognito.
- *  — Las claims “exóticas” (con :) se declaran entre comillas.
- *  — Marca opcionales las que podrían no venir según tu pool.
- */
 export interface CognitoIdTokenPayload {
-  /* claims estándar JWT */
   aud: string;
   exp: number;
   iat: number;
@@ -15,16 +8,29 @@ export interface CognitoIdTokenPayload {
   token_use: 'id' | 'access' | 'refresh';
   auth_time: number;
 
-  /* claims de usuario */
   email: string;
   email_verified: boolean;
   name?: string;
 
-  /* claims de Cognito */
   'cognito:username': string;
   'cognito:groups'?: string[];
   'custom:role'?: string;
 
-  /* claims extra que puedas añadir en futuro */
   [claim: string]: unknown;
+}
+
+export enum ChallengeName {
+  NewPasswordRequired = 'NEW_PASSWORD_REQUIRED',
+  MfaSetup = 'MFA_SETUP',
+  SelectMfaType = 'SELECT_MFA_TYPE',
+  MfaVerifyCode = 'MFA_VERIFY_CODE',
+  CustomChallenge = 'CUSTOM_CHALLENGE',
+  SoftwareTokenMfa = 'SOFTWARE_TOKEN_MFA',
+  SmsMfa = 'SMS_MFA',
+  DeviceSrpAuth = 'DEVICE_SRP_AUTH',
+  AdminNoSrpAuth = 'ADMIN_NO_SRP_AUTH',
+}
+
+export enum AuthFlowName {
+  UserPasswordAuth = 'USER_PASSWORD_AUTH',
 }

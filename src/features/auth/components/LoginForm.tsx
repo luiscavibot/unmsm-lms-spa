@@ -18,37 +18,34 @@ import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import GoogleIcon from '@/assets/icons/GoogleIcon';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { loginAsync } from '@/store/thunks/loginAsync';
+import { AuthStatusLogin } from '@/store/slices/auth/types';
+import { ChallengeName } from '../interfaces/Cognito';
 
 const LoginForm = () => {
-  // ─── Redux dispatch & selector ───
   const dispatch = useAppDispatch();
   const { status, error: authError } = useAppSelector((state) => state.auth);
-  const loading = status === 'loading';
+  const loading = status === AuthStatusLogin.Loading;
 
-  // ─── Local state ───
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // ─── Router ───
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as any)?.from?.pathname || '/courses';
 
-  // ─── Submit handler ───
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    dispatch(loginAsync({ email, password }))
-      .unwrap()
-      .then(() => {
+    try {
+      const result = await dispatch(loginAsync({ username: email, password })).unwrap();
+      if (result.challengeName === ChallengeName.NewPasswordRequired) {
+        navigate('/new-password', { replace: true });
+      } else {
         navigate(from, { replace: true });
-      })
-      .catch(() => {
-        // El error ya está en authError
-      });
+      }
+    } catch {}
   };
 
-  // ─── JSX ───
   return (
     <Box width={{ xs: 'auto', sm: 310 }} maxWidth="100%" mx="auto">
       <Typography
@@ -112,7 +109,6 @@ const LoginForm = () => {
           <Link component={RouterLink} to="/forgot-password" underline="hover" fontSize="0.9rem">
             Olvidé mi contraseña
           </Link>
-
           <Button type="submit" variant="contained" disabled={loading} fullWidth>
             {loading ? <CircularProgress size={24} color="inherit" /> : 'INGRESAR'}
           </Button>
