@@ -8,7 +8,7 @@ interface CoursesTabsProps {
 
 export default function CoursesDetailTabs({ value, onChange }: CoursesTabsProps) {
   return (
-    <Box>
+    <Box sx={{ mb: '24px' }}>
       <Tabs value={value} onChange={onChange} indicatorColor="primary" textColor="primary" variant="standard" aria-label="full width tabs example">
         <Tab label="Materiales" />
         <Tab label="Asistencia" />
