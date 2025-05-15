@@ -9,6 +9,7 @@ import ForgotPasswordConfirmation from '@/pages/Auth/ForgotPasswordConfirmation'
 import ResetPassword from '@/pages/Auth/ResetPassword';
 import ResetPasswordConfirmation from '@/pages/Auth/ResetPasswordConfirmation';
 import CoursesList from '@/pages/Courses/CoursesList';
+import CourseDetail from '@/pages/Courses/CourseDetail';
 const Routing: React.FC = () => (
   <Routes>
     {/* Redirect root */}
@@ -29,6 +30,7 @@ const Routing: React.FC = () => (
     {/* Privadas: solo accesibles con token */}
     <Route element={<RequireAuth />}>
       <Route path="/courses/:type" element={<CoursesList />} />
+      <Route path="/courses/:type/:courseSlug" element={<CourseDetail />} />
     </Route>
 
     {/* Fallback 404 → redirige a home */}

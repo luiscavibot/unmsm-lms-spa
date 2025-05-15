@@ -77,19 +77,19 @@ const DiplomasView = () => {
       </Typography>
       <Stack direction="row" flexWrap="wrap" spacing={2} mb={4} useFlexGap>
         <Box sx={{ flex: '1 1 30%', minWidth: 280, maxWidth: '32%', display: 'flex', justifyContent: 'center' }}>
-          <CardCourse />
+          <CardCourse slug="bioinformatica-aplicada-a-la-vigilancia-genomica" />
         </Box>
         <Box sx={{ flex: '1 1 30%', minWidth: 280, maxWidth: '32%', display: 'flex', justifyContent: 'center' }}>
-          <CardCourse />
+          <CardCourse slug="bioinformatica-aplicada-a-la-vigilancia-genomica" />
         </Box>
         <Box sx={{ flex: '1 1 30%', minWidth: 280, maxWidth: '32%', display: 'flex', justifyContent: 'center' }}>
-          <CardCourse />
+          <CardCourse slug="bioinformatica-aplicada-a-la-vigilancia-genomica" />
         </Box>
         <Box sx={{ flex: '1 1 30%', minWidth: 280, maxWidth: '32%', display: 'flex', justifyContent: 'center' }}>
-          <CardCourse />
+          <CardCourse slug="bioinformatica-aplicada-a-la-vigilancia-genomica" />
         </Box>
         <Box sx={{ flex: '1 1 30%', minWidth: 280, maxWidth: '32%', display: 'flex', justifyContent: 'center' }}>
-          <CardCourse status="sin-iniciar" />
+          <CardCourse slug="bioinformatica-aplicada-a-la-vigilancia-genomica" status="sin-iniciar" />
         </Box>
       </Stack>
     </Box>

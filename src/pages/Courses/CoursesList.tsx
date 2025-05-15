@@ -32,22 +32,22 @@ export default function CoursesList() {
         </Link>
         <Typography sx={{ color: 'text.primary' }}>Cursos</Typography>
       </Breadcrumbs>
-      <CoursesPageDataProvider>
-        <AlertBanner open={open} onClose={() => setOpen(false)} />
-        <CoursesTabs value={value} onChange={handleChange} />
-        <TabPanel value={value} index={0}>
-          <MasterDegreesView />
-        </TabPanel>
-        <TabPanel value={value} index={1}>
-          <DoctoratesView />
-        </TabPanel>
-        <TabPanel value={value} index={2}>
-          <DiplomasView />
-        </TabPanel>
-        <TabPanel value={value} index={3}>
-          <SpecialtiesView />
-        </TabPanel>
-      </CoursesPageDataProvider>
+      {/* <CoursesPageDataProvider> */}
+      <AlertBanner open={open} onClose={() => setOpen(false)} />
+      <CoursesTabs value={value} onChange={handleChange} />
+      <TabPanel value={value} index={0}>
+        <MasterDegreesView />
+      </TabPanel>
+      <TabPanel value={value} index={1}>
+        <DoctoratesView />
+      </TabPanel>
+      <TabPanel value={value} index={2}>
+        <DiplomasView />
+      </TabPanel>
+      <TabPanel value={value} index={3}>
+        <SpecialtiesView />
+      </TabPanel>
+      {/* </CoursesPageDataProvider> */}
     </MainLayout>
   );
 }
