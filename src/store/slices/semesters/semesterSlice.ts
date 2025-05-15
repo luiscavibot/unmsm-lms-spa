@@ -10,7 +10,6 @@ const semestersSlice = createSlice({
   initialState,
   reducers: {
     setSemesters(state, action: PayloadAction<ISemesterResp>) {
-      console.log('Semesters desde slice:', action.payload);
       state.list = action.payload;
     },
     clearSemesters(state) {
