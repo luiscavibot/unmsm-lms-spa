@@ -4,26 +4,26 @@ import React from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 
 const allowedTypes = ['pregrado', 'posgrado'];
-const mockCourses = [
-  {
-    slug: 'bioinformatica-aplicada-a-la-vigilancia-genomica',
-    type: 'posgrado',
-    title: 'Bioinformática Aplicada a la Vigilancia Genómica',
-  },
-];
+// const mockCourses = [
+//   {
+//     slug: '1',
+//     type: 'posgrado',
+//     name: 'Bioinformática Aplicada a la Vigilancia Genómica',
+//   },
+// ];
 
 export default function CourseDetail() {
-  const { type, courseSlug } = useParams();
+  const { type } = useParams();
 
   if (!allowedTypes.includes(type || '')) {
     return <Navigate to="/404" replace />;
   }
 
-  const course = mockCourses.find((c) => c.slug === courseSlug && c.type === type);
+  //   const course = mockCourses.find((c) => c.slug === courseSlug && c.type === type);
 
-  if (!course) {
-    return <Navigate to="/404" replace />;
-  }
+  //   if (!course) {
+  //     return <Navigate to="/404" replace />;
+  //   }
   return (
     <MainLayout>
       <Breadcrumbs sx={{ mb: 6 }} aria-label="breadcrumb">
@@ -36,7 +36,7 @@ export default function CourseDetail() {
         <Typography sx={{ color: 'text.primary' }}>Bioinformática Aplicada a la Vigilancia Genómica</Typography>
       </Breadcrumbs>
       <Typography sx={{ color: 'secondary.dark', fontSize: '20px', fontWeight: '700', mb: 1 }} variant="h4">
-        {course.title}
+        Epidemiología de las Enfermedades Transmitidas por Vectores I
       </Typography>
       <Typography sx={{ color: 'neutral.main', fontSize: '14px', fontWeight: '400', mb: 5 }} variant="body2">
         Bioinformática aplicada a la salud pública
