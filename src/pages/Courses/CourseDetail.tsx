@@ -1,7 +1,8 @@
 import { MainLayout } from '@/components/layouts/MainLayout/MainLayout';
-import { Box, Breadcrumbs, Grid2 as Grid, Link, Stack, Typography } from '@mui/material';
-import React from 'react';
+import { Box, Breadcrumbs, FormControl, InputLabel, Link, MenuItem, Select, SelectChangeEvent, Stack, Typography } from '@mui/material';
+import React, { Suspense } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
+const BloqueView = React.lazy(() => import('@/features/courses/courseDetail/components/BloqueView'));
 
 const allowedTypes = ['pregrado', 'posgrado'];
 // const mockCourses = [
@@ -24,6 +25,20 @@ export default function CourseDetail() {
   //   if (!course) {
   //     return <Navigate to="/404" replace />;
   //   }
+
+  const bloques = [
+    { value: 'teoria', label: 'Teoría' },
+    { value: 'practica-grupo-2', label: 'Práctica (Grupo II)' },
+  ];
+
+  const [valueBloque, setValueBloque] = React.useState(bloques[0].value);
+
+  const labelBloque = bloques.find((b) => b.value === valueBloque)?.label || '';
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setValueBloque(event.target.value);
+  };
+
   return (
     <MainLayout>
       <Breadcrumbs sx={{ mb: 6 }} aria-label="breadcrumb">
@@ -93,13 +108,37 @@ export default function CourseDetail() {
           </Box>
         </Box>
       </Box>
-      <Stack>
+      <Stack direction="row" spacing={2} mb={5} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="body1">
           Este curso combina sesiones de teoría con grupos de práctica para reforzar el aprendizaje.
           <br />
           Explora los contenidos que necesitas para avanzar en tu formación.
         </Typography>
+        <FormControl variant="filled" sx={{ m: 1, minWidth: 220 }}>
+          <InputLabel id="demo-simple-select-filled-label">Bloque</InputLabel>
+          <Select
+            sx={{
+              backgroundColor: 'neutral.lightest',
+              '&.Mui-focused': {
+                backgroundColor: 'neutral.lightest',
+              },
+            }}
+            labelId="demo-simple-select-filled-label"
+            id="demo-simple-select-filled"
+            value={valueBloque}
+            onChange={handleChange}
+          >
+            {bloques.map((bloque) => (
+              <MenuItem key={bloque.value} value={bloque.value}>
+                {bloque.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Stack>
+      <Suspense fallback={<Typography>Cargando bloque...</Typography>}>
+        <BloqueView value={valueBloque} nombre={labelBloque} />
+      </Suspense>
     </MainLayout>
   );
 }
