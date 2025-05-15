@@ -1,19 +1,10 @@
 // src/features/auth/components/ResetPasswordForm.tsx
-import {
-  Box,
-  Button,
-  Stack,
-  TextField,
-  IconButton,
-  InputAdornment,
-  CircularProgress,
-  Alert,
-} from '@mui/material';
+import { Box, Button, Stack, TextField, IconButton, InputAdornment, CircularProgress, Alert } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { confirmPasswordResetAsync } from '@/store/thunks/password';
+import { confirmPasswordResetAsync } from '@/store/thunks/forgotPasswordAsync';
 import { clearPasswordState } from '@/store/slices/password/passwordSlice';
 
 interface ResetPasswordFormProps {
@@ -46,12 +37,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ initialEma
   }, [codeFromQuery]);
 
   const passwordsMatch = newPass === confirm;
-  const formIsValid =
-    email.trim() !== '' &&
-    code.trim() !== '' &&
-    newPass.trim() !== '' &&
-    confirm.trim() !== '' &&
-    passwordsMatch;
+  const formIsValid = email.trim() !== '' && code.trim() !== '' && newPass.trim() !== '' && confirm.trim() !== '' && passwordsMatch;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,14 +69,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ initialEma
         {resetError && <Alert severity="error">{resetError}</Alert>}
 
         {/* Correo (solo lectura) */}
-        <TextField
-          label="Correo electrónico"
-          name="email"
-          autoComplete="email"
-          fullWidth
-          value={email}
-          disabled
-        />
+        <TextField label="Correo electrónico" name="email" autoComplete="email" fullWidth value={email} disabled />
 
         {/* Código de verificación */}
         <TextField

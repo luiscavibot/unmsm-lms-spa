@@ -33,4 +33,5 @@ export enum ChallengeName {
 
 export enum AuthFlowName {
   UserPasswordAuth = 'USER_PASSWORD_AUTH',
+  RefreshTokenAuth = 'REFRESH_TOKEN_AUTH',
 }

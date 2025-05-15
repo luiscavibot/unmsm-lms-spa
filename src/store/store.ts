@@ -21,6 +21,7 @@ const persistConfig = {
   key: 'root',
   version: 1,
   storage,
+  //TODO: Evaluar no depender de esto ¿está afectando cuando se cambia de una cuena a otra?
   whitelist: ['auth'],
 };
 const persistedReducer = persistReducer(persistConfig, rootReducer);

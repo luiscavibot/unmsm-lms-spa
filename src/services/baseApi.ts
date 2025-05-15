@@ -1,20 +1,41 @@
-import { RootState } from '@/store/store';
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi, fetchBaseQuery, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
+import type { RootState } from '@/store/store';
 import lab from '@/services/apiLabels';
+import { API_URL } from '@/configs/consts';
+import { logoutAsync } from '@/store/thunks/logoutAsync';
+import { refreshAsync } from '@/store/thunks/refreshAuthAsync';
+
+// BaseQuery “crudo” con el header Authorization
+const rawBaseQuery = fetchBaseQuery({
+  baseUrl: API_URL,
+  prepareHeaders: (headers, { getState }) => {
+    const token = (getState() as RootState).auth.accessToken;
+    if (token) {
+      headers.set('authorization', `Bearer ${token}`);
+    }
+    return headers;
+  },
+});
+
+const baseQueryWithReauth = async (args: string | FetchArgs, api: any, extraOptions: any) => {
+  let result = await rawBaseQuery(args, api, extraOptions);
+
+  if (result.error && (result.error as FetchBaseQueryError).status === 401) {
+    try {
+      await api.dispatch(refreshAsync()).unwrap();
+
+      result = await rawBaseQuery(args, api, extraOptions);
+    } catch {
+      api.dispatch(logoutAsync());
+    }
+  }
+
+  return result;
+};
 
 export const baseApi = createApi({
   reducerPath: 'api',
-  baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API_URL,
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.accessToken;
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
-
+  baseQuery: baseQueryWithReauth,
   tagTypes: [lab.Courses, lab.Semesters, lab.Users],
   endpoints: () => ({}),
 });

@@ -1,7 +1,7 @@
 // src/features/auth/passwordSlice.ts
 import { createSlice } from '@reduxjs/toolkit';
 
-import { confirmPasswordResetAsync, forgotPasswordAsync } from '../../thunks/password';
+import { confirmPasswordResetAsync, forgotPasswordAsync } from '../../thunks/forgotPasswordAsync';
 import { PasswordState } from './types';
 import { SliceNames } from '../sliceNames';
 

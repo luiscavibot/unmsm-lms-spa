@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { validateEmail } from '@/helpers/validators';
 import { useNavigate } from 'react-router-dom';
-import { forgotPasswordAsync } from '@/store/thunks/password';
+import { forgotPasswordAsync } from '@/store/thunks/forgotPasswordAsync';
 import { clearPasswordState } from '@/store/slices/password/passwordSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 

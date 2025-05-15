@@ -31,6 +31,7 @@ export default defineConfig({
       '@/i18n': '/src/i18n',
       '@/helpers': '/src/helpers',
       '@/providers': '/src/providers',
+      '@/configs': '/src/configs',
     },
   },
 });

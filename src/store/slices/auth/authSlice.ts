@@ -1,11 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { decode } from '@/helpers/jwt';
-import { CognitoIdTokenPayload } from '@/features/auth/interfaces/Cognito';
+import { ChallengeName, CognitoIdTokenPayload } from '@/features/auth/interfaces/Cognito';
 import { loginAsync } from '../../thunks/loginAsync';
 import { logoutAsync } from '../../thunks/logoutAsync';
 import { AuthState, AuthStatusLogin } from './types';
 import { SliceNames } from '../sliceNames';
 import { completeNewPasswordAsync } from '@/store/thunks/completeNewPasswordAsync';
+import { refreshAsync } from '@/store/thunks/refreshAuthAsync';
 
 const initialState: AuthState = {
   user: null,
@@ -37,7 +38,7 @@ const authSlice = createSlice({
       })
       .addCase(loginAsync.fulfilled, (state, { payload }) => {
         state.status = AuthStatusLogin.Idle;
-        if (payload.challengeName === 'NEW_PASSWORD_REQUIRED') {
+        if (payload.challengeName === ChallengeName.NewPasswordRequired) {
           state.newPasswordRequired = true;
           state.tempSession = payload.session!;
           state.tempUsername = payload.username!;
@@ -103,6 +104,23 @@ const authSlice = createSlice({
         state.refreshToken = null;
         localStorage.clear();
         state.error = payload ?? 'Logout falló';
+      })
+      //REFRESH TOKEN
+      .addCase(refreshAsync.fulfilled, (state, { payload }) => {
+        state.accessToken = payload.accessToken;
+        state.idToken = payload.idToken;
+        state.refreshToken = payload.refreshToken;
+        localStorage.setItem('accessToken', payload.accessToken);
+        localStorage.setItem('idToken', payload.idToken);
+        localStorage.setItem('refreshToken', payload.refreshToken);
+      })
+      .addCase(refreshAsync.rejected, (state) => {
+        // si el refresh falla, hacemos logout directo
+        state.user = null;
+        state.accessToken = null;
+        state.idToken = null;
+        state.refreshToken = null;
+        localStorage.clear();
       });
   },
 });
