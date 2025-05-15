@@ -1,8 +1,7 @@
-// src/features/auth/components/ForgotPasswordForm.tsx
 import { Box, Button, Stack, TextField, CircularProgress, Alert } from '@mui/material';
 import { Link } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
-import { validateEmail } from '@/utils/validators';
+import { validateEmail } from '@/helpers/validators';
 import { useNavigate } from 'react-router-dom';
 import { forgotPasswordAsync } from '@/store/thunks/password';
 import { clearPasswordState } from '@/store/slices/password/passwordSlice';
@@ -69,15 +68,7 @@ export const ForgotPasswordForm = () => {
           {loading ? 'Enviando…' : 'Enviar código'}
         </Button>
 
-        <Button
-          component={Link}
-          to="/login"
-          size="large"
-          variant="text"
-          fullWidth
-          disabled={loading}
-          sx={{ textTransform: 'initial' }}
-        >
+        <Button component={Link} to="/login" size="large" variant="text" fullWidth disabled={loading} sx={{ textTransform: 'initial' }}>
           Volver a inicio de sesión
         </Button>
       </Stack>

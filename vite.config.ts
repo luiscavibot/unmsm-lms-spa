@@ -28,7 +28,6 @@ export default defineConfig({
       '@/store': '/src/store',
       '@/layout': '/src/layout',
       '@/data': '/src/data',
-      '@/helper': '/src/helper',
       '@/i18n': '/src/i18n',
       '@/helpers': '/src/helpers',
       '@/providers': '/src/providers',

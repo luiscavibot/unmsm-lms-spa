@@ -3,25 +3,18 @@ import uiReducer from './slices/ui/uiSlice';
 import authReducer from '@/store/slices/auth/authSlice';
 import passwordReducer from '@/store/slices/password/passwordSlice';
 import semestersReducer from '@/store/slices/semesters/semesterSlice';
+import coursesReducer from '@/store/slices/courses/coursesSlice';
 import storage from 'redux-persist/lib/storage';
 
 import { baseApi } from '@/services/baseApi';
-import {
-  persistStore,
-  persistReducer,
-  FLUSH,
-  REHYDRATE,
-  PAUSE,
-  PERSIST,
-  PURGE,
-  REGISTER,
-} from 'redux-persist';
+import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 
 const rootReducer = combineReducers({
   ui: uiReducer,
   auth: authReducer,
   password: passwordReducer,
   semesters: semestersReducer,
+  courses: coursesReducer,
   [baseApi.reducerPath]: baseApi.reducer,
 });
 const persistConfig = {
