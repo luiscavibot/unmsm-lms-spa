@@ -3,6 +3,7 @@ import { useTheme } from '@mui/material/styles';
 import { Course } from '@/services/courses/types';
 import { formatDate } from '@/helpers/formatDate';
 import { getInitials } from '@/helpers/avatar';
+import { Link } from 'react-router-dom';
 
 type CardCourseProps = Course;
 
@@ -12,8 +13,14 @@ export default function CardCourse({ courseId, name, teacher, startDate, endDate
   const startDateFormatted = formatDate(startDate);
   const endDateFormatted = formatDate(endDate);
   const avatarColor = unstarted ? theme.palette.grey[400] : theme.palette.primary.main;
+  const Wrapper = unstarted ? Box : Link;
   return (
-    <Box sx={{ width: '100%', maxWidth: '344px' }} id={courseId}>
+    <Box
+      component={Wrapper}
+      to={!unstarted ? `/courses/posgrado/${courseId}` : undefined}
+      sx={{ width: '100%', maxWidth: '344px', textDecoration: 'none' }}
+      id={courseId}
+    >
       <Card
         variant="outlined"
         sx={{
@@ -56,7 +63,7 @@ export default function CardCourse({ courseId, name, teacher, startDate, endDate
             </Box>
           </Stack>
           <Divider sx={{ mb: 2 }} />
-          <Stack direction="column" sx={{ gap: status === 'sin-iniciar' ? '12px 0px' : '44px 0px' }}>
+          <Stack direction="column" sx={{ gap: unstarted ? '12px 0px' : '44px 0px' }}>
             <Stack direction="column" spacing={'4px'}>
               <Typography variant="body2">Inicio: {startDateFormatted}</Typography>
               <Typography variant="body2">Fin: {endDateFormatted}</Typography>
