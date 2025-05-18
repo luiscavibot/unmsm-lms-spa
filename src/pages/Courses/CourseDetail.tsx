@@ -1,30 +1,46 @@
 import { MainLayout } from '@/components/layouts/MainLayout/MainLayout';
-import { Box, Breadcrumbs, FormControl, InputLabel, Link, MenuItem, Select, SelectChangeEvent, Stack, Typography } from '@mui/material';
-import React, { Suspense } from 'react';
+import { formatDate } from '@/helpers/formatDate';
+import { useGetCoursesDetailCourseOfferingIdQuery as useGetCourse } from '@/services/courses/coursesSvc';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import {
+  clearCourseOfferingSelected,
+  setCourseOfferingSelected,
+} from '@/store/slices/coursesOfferings/courseOfferingsSlice';
+import {
+  Box,
+  Breadcrumbs,
+  FormControl,
+  InputLabel,
+  Link,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Stack,
+  Typography,
+} from '@mui/material';
+import React, { Suspense, useEffect } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 const BloqueView = React.lazy(() => import('@/features/courses/courseDetail/components/BloqueView'));
 
-const allowedTypes = ['pregrado', 'posgrado'];
-// const mockCourses = [
-//   {
-//     slug: '1',
-//     type: 'posgrado',
-//     name: 'Bioinformática Aplicada a la Vigilancia Genómica',
-//   },
-// ];
-
 export default function CourseDetail() {
-  const { type } = useParams();
+  const { courseId } = useParams<{ courseId: string }>();
+  const dispatch = useAppDispatch();
+  const { data: detail, isLoading, error } = useGetCourse({ courseOfferingId: courseId! }, { skip: !courseId });
+  console.log('detail', detail);
 
-  if (!allowedTypes.includes(type || '')) {
+  useEffect(() => {
+    if (detail) {
+      dispatch(setCourseOfferingSelected(detail));
+    } else if (!isLoading) {
+      dispatch(clearCourseOfferingSelected());
+    }
+  }, [detail, isLoading, dispatch]);
+
+  const selected = useAppSelector((state) => state.courseOfferings.courseOfferingSelected);
+
+  if (!courseId) {
     return <Navigate to="/404" replace />;
   }
-
-  //   const course = mockCourses.find((c) => c.slug === courseSlug && c.type === type);
-
-  //   if (!course) {
-  //     return <Navigate to="/404" replace />;
-  //   }
 
   const bloques = [
     { value: 'teoria', label: 'Teoría' },
@@ -39,6 +55,17 @@ export default function CourseDetail() {
     setValueBloque(event.target.value);
   };
 
+  if (isLoading) {
+    return <Typography>Cargando detalles del curso…</Typography>;
+  }
+
+  if (error || !selected) {
+    return <Typography color="error">No se pudo cargar el curso.</Typography>;
+  }
+
+  const startDateFormatted = formatDate(selected?.startDate);
+  const endDateFormatted = formatDate(selected?.endDate);
+
   return (
     <MainLayout>
       <Breadcrumbs sx={{ mb: 6 }} aria-label="breadcrumb">
@@ -48,13 +75,13 @@ export default function CourseDetail() {
         <Link underline="hover" color="inherit" href="/courses/posgrado">
           Cursos
         </Link>
-        <Typography sx={{ color: 'text.primary' }}>Bioinformática Aplicada a la Vigilancia Genómica</Typography>
+        <Typography sx={{ color: 'text.primary' }}>{selected.name}</Typography>
       </Breadcrumbs>
       <Typography sx={{ color: 'secondary.dark', fontSize: '20px', fontWeight: '700', mb: 1 }} variant="h4">
-        Epidemiología de las Enfermedades Transmitidas por Vectores I
+        {selected.name}
       </Typography>
       <Typography sx={{ color: 'neutral.main', fontSize: '14px', fontWeight: '400', mb: 5 }} variant="body2">
-        Bioinformática aplicada a la salud pública
+        {selected.programName}
       </Typography>
       <Box sx={{ borderRadius: '8px', p: 3, bgcolor: 'neutral.lightest', display: 'inline-flex', gap: 5, mb: 5 }}>
         <Box
@@ -69,7 +96,7 @@ export default function CourseDetail() {
               Fecha de inicio:{' '}
             </Typography>
             <Typography component="span" sx={{ fontWeight: 400, color: 'neutral.main' }}>
-              01/04/2025
+              {startDateFormatted}
             </Typography>
           </Box>
           <Box>
@@ -77,7 +104,7 @@ export default function CourseDetail() {
               Fecha de fin:{' '}
             </Typography>
             <Typography component="span" sx={{ fontWeight: 400, color: 'neutral.main' }}>
-              16/06/2025
+              {endDateFormatted}
             </Typography>
           </Box>
           <Box>
@@ -85,7 +112,7 @@ export default function CourseDetail() {
               Año-semestre:{' '}
             </Typography>
             <Typography component="span" sx={{ fontWeight: 400, color: 'neutral.main' }}>
-              2025-I
+              {selected.semester}
             </Typography>
           </Box>
           <Box>
@@ -93,7 +120,7 @@ export default function CourseDetail() {
               Docente responsable:{' '}
             </Typography>
             <Typography component="span" sx={{ fontWeight: 400, color: 'neutral.main' }}>
-              Eduardo Romero
+              {selected.teacher}
             </Typography>
           </Box>
         </Box>
@@ -103,7 +130,7 @@ export default function CourseDetail() {
               Nota final:{' '}
             </Typography>
             <Typography component="span" sx={{ fontWeight: 400, color: 'neutral.main' }}>
-              13
+              {selected.endNote ? selected.endNote : 'Pendiente'}
             </Typography>
           </Box>
         </Box>

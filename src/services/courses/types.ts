@@ -35,3 +35,35 @@ export interface ICoursesByProgramTypeResp {
   meta: Meta;
   programs: Program[];
 }
+
+export interface FileInfoDto {
+  fileName: string;
+  downloadUrl: string;
+}
+
+export interface BlockScheduleDto {
+  schedule: string;
+}
+
+export interface BlockDetailDto {
+  blockId: string;
+  name: string;
+  schedule: string[];
+  aula: string;
+  teacher: string | null;
+  syllabus: FileInfoDto;
+  cv: FileInfoDto;
+  meetUrl: string;
+}
+
+export interface CourseDetailResponseDto {
+  courseId: string;
+  name: string;
+  programName: string;
+  startDate: string;
+  endDate: string;
+  semester: string;
+  teacher: string;
+  endNote: number | null;
+  blocks: BlockDetailDto[];
+}

@@ -1,7 +1,7 @@
 export enum SliceNames {
   UI = 'ui',
   Semesters = 'semesters',
-  Courses = 'courses',
+  CourseOfferings = 'CourseOfferings',
   Users = 'users',
   Password = 'password',
   Auth = 'auth',

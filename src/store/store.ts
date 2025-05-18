@@ -3,7 +3,7 @@ import uiReducer from './slices/ui/uiSlice';
 import authReducer from '@/store/slices/auth/authSlice';
 import passwordReducer from '@/store/slices/password/passwordSlice';
 import semestersReducer from '@/store/slices/semesters/semesterSlice';
-import coursesReducer from '@/store/slices/courses/coursesSlice';
+import courseOfferingsReducer from '@/store/slices/coursesOfferings/courseOfferingsSlice';
 import storage from 'redux-persist/lib/storage';
 
 import { baseApi } from '@/services/baseApi';
@@ -14,7 +14,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   password: passwordReducer,
   semesters: semestersReducer,
-  courses: coursesReducer,
+  courseOfferings: courseOfferingsReducer,
   [baseApi.reducerPath]: baseApi.reducer,
 });
 const persistConfig = {
