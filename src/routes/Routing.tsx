@@ -29,7 +29,7 @@ const Routing: React.FC = () => (
     {/* Privadas: solo accesibles con token */}
     <Route element={<RequireAuth />}>
       <Route path="/courses/:type" element={<CoursesList />} />
-      <Route path="/courses/:type/:courseId" element={<CourseDetail />} />
+      <Route path="/courses/:type/:courseOfferingId" element={<CourseDetail />} />
     </Route>
     {/* Fallback 404 → redirige a home */}
     <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,3 +1,7 @@
+import {
+  clearCourseOfferingSelected,
+  setCourseOfferingSelected,
+} from '@/store/slices/coursesOfferings/courseOfferingsSlice';
 import { baseApi } from '../baseApi';
 import type { ICoursesByProgramTypeResp, CourseStatus, ProgramType, CourseDetailResponseDto } from './types';
 import lab from '@/services/apiLabels';
@@ -18,7 +22,8 @@ export const coursesApi = baseApi.injectEndpoints({
         url: '/courses/by-program-type',
         params: { status, programType, semester, page, limit, keyword },
       }),
-      providesTags: (result) => (result ? [lab.Courses, ...result.programs.map((p) => ({ type: lab.Courses, id: p.programId }))] : [lab.Courses]),
+      providesTags: (result) =>
+        result ? [lab.Courses, ...result.programs.map((p) => ({ type: lab.Courses, id: p.programId }))] : [lab.Courses],
     }),
 
     getCoursesDetailCourseOfferingId: build.query<CourseDetailResponseDto, { courseOfferingId: string }>({
@@ -26,6 +31,14 @@ export const coursesApi = baseApi.injectEndpoints({
         url: `/courses/detail/${courseOfferingId}`,
       }),
       providesTags: (_result, _error, { courseOfferingId }) => [{ type: lab.Courses, id: courseOfferingId }],
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setCourseOfferingSelected(data));
+        } catch {
+          dispatch(clearCourseOfferingSelected());
+        }
+      },
     }),
   }),
   overrideExisting: false,

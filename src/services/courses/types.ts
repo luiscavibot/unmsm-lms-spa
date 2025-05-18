@@ -1,4 +1,9 @@
-export type ProgramType = 'PREGRADO' | 'POSGRADO-DIPLOMADO' | 'POSGRADO-DOCTORADO' | 'POSGRADO-MAESTRIA' | 'POSGRADO-SEGUNDAESPECIALIDAD';
+export type ProgramType =
+  | 'PREGRADO'
+  | 'POSGRADO-DIPLOMADO'
+  | 'POSGRADO-DOCTORADO'
+  | 'POSGRADO-MAESTRIA'
+  | 'POSGRADO-SEGUNDAESPECIALIDAD';
 
 export type CourseStatus = 'unstarted' | 'current' | 'completed';
 
@@ -45,8 +50,14 @@ export interface BlockScheduleDto {
   schedule: string;
 }
 
+export enum BlockType {
+  THEORY = 'theory',
+  PRACTICE = 'practice',
+}
+
 export interface BlockDetailDto {
   blockId: string;
+  blockType: BlockType.THEORY | BlockType;
   name: string;
   schedule: string[];
   aula: string;
