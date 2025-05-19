@@ -63,6 +63,24 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
               </Typography>
             </Box>
           </Box>
+          {selectedBlock.teacher && (
+            <Box>
+              <Typography
+                component="span"
+                variant="body2"
+                sx={{ fontSize: '14px', fontWeight: '600', color: 'neutral.dark' }}
+              >
+                Docente:
+              </Typography>{' '}
+              <Typography
+                component="span"
+                variant="body2"
+                sx={{ fontSize: '14px', fontWeight: '400', color: 'neutral.main' }}
+              >
+                {selectedBlock.teacher}
+              </Typography>
+            </Box>
+          )}
           <Box sx={{ display: 'flex', gap: '10px' }}>
             <Button
               size="small"
