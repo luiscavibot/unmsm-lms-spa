@@ -139,7 +139,7 @@ const LoginForm = () => {
 
       <Typography variant="body2" align="center" sx={{ mt: 2 }}>
         ¿Necesitas una cuenta?{' '}
-        <Link href="mailto:soporteinformaticoupg.fcb@unmsm.edu.pe" underline="hover">
+        <Link target="_blank" href="mailto:soporteinformaticoupg.fcb@unmsm.edu.pe" underline="hover">
           Contacta a soporte
         </Link>
       </Typography>
