@@ -1,112 +1,137 @@
-import React from 'react';
-import { Alert, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import React, { FC, useState, useEffect } from 'react';
 import { Dayjs } from 'dayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
-const GreenBox = () => <Box sx={{ bgcolor: '#A5D6A7', width: '24px', height: '24px', borderRadius: '4px' }}></Box>;
-const RedBox = () => <Box sx={{ bgcolor: '#EF9A9A', width: '24px', height: '24px', borderRadius: '4px' }}></Box>;
-const YellowBox = () => <Box sx={{ bgcolor: '#FFF59D', width: '24px', height: '24px', borderRadius: '4px' }}></Box>;
+import {
+  Alert,
+  Box,
+  CircularProgress,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from '@mui/material';
+import { useGetAttendanceByBlockIdQuery } from '@/services/attendance/attendanceSvc';
+import { AttendanceStatus, WeekAttendanceDto } from '@/services/attendance/types';
 
-export default function AlumnoAsistenciaView() {
-  const [cleared, setCleared] = React.useState<boolean>(false);
-  const [value, setValue] = React.useState<Dayjs | null>(null);
+const GreenBox = () => <Box sx={{ bgcolor: '#A5D6A7', width: 24, height: 24, borderRadius: 1 }} />;
+const RedBox = () => <Box sx={{ bgcolor: '#EF9A9A', width: 24, height: 24, borderRadius: 1 }} />;
+const YellowBox = () => <Box sx={{ bgcolor: '#FFF59D', width: 24, height: 24, borderRadius: 1 }} />;
+
+interface AlumnoAsistenciaViewProps {
+  blockId: string;
+}
+
+const AlumnoAsistenciaView: FC<AlumnoAsistenciaViewProps> = ({ blockId }) => {
+  const { data, isLoading, isFetching, error } = useGetAttendanceByBlockIdQuery({ blockId });
+  console.log('data', data);
+  const [value, setValue] = useState<Dayjs | null>(null);
+  const [filterDate, setFilterDate] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (value) {
+      setFilterDate(value.format('DD/MM/YYYY'));
+    } else {
+      setFilterDate(null);
+    }
+  }, [value]);
+
+  if (isLoading || isFetching) {
+    return <CircularProgress />;
+  }
+  if (error || !data) {
+    return <Alert severity="error">Error al cargar asistencias.</Alert>;
+  }
+
+  const weeks: WeekAttendanceDto[] = filterDate
+    ? data.weeks
+        .map((week) => ({
+          ...week,
+          attendances: week.attendances.filter((att) => att.date === filterDate),
+        }))
+        .filter((week) => week.attendances.length > 0)
+    : data.weeks;
+
   return (
     <>
-      <Alert sx={{ mb: '24px' }} variant="outlined" severity="info">
-        La asistencia mínima requerida para pasar el curso es del 70%
+      <Alert sx={{ mb: 3 }} variant="outlined" severity="info">
+        La asistencia mínima requerida para pasar el curso es del {data.attendancePercentage}.
       </Alert>
-      <Box sx={{ display: 'flex', flexDirection: 'row', gap: '16px', justifyContent: 'space-between', mb: '40px' }}>
-        <DatePicker
+
+      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between', mb: 4 }}>
+        {/* TODO: IMPLEMENTAR FILTRO POR FECHA
+         <DatePicker
           label="Seleccionar fecha"
           value={value}
           onChange={(newValue) => setValue(newValue)}
           format="DD/MM/YYYY"
           slotProps={{
-            field: { clearable: true, onClear: () => setCleared(true) },
+            field: {
+              clearable: true,
+              onClear: () => setValue(null),
+            },
           }}
-        />
-        <Typography sx={{ color: 'neutral.main', fontSize: '16px', fontWeight: 400 }} variant="body2">
-          Asistencia actual: 40%
+        /> */}
+        <Typography sx={{ color: 'neutral.main', fontSize: 16, fontWeight: 400 }}>
+          Asistencia actual: {data.attendancePercentage}
         </Typography>
       </Box>
-      <Box sx={{ display: 'flex', flexDirection: 'row', gap: '32px', mb: '32px' }}>
-        <Box sx={{ display: 'flex', flexDirection: 'row', gap: '8px', alignItems: 'center' }}>
+
+      <Box sx={{ display: 'flex', gap: 4, mb: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <GreenBox />
-          <Typography sx={{ color: 'neutral.main', fontSize: '14px', fontWeight: 400 }} variant="body2">
-            Asistió
-          </Typography>
+          <Typography sx={{ fontSize: 14 }}>Asistió</Typography>
         </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'row', gap: '8px', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <RedBox />
-          <Typography sx={{ color: 'neutral.main', fontSize: '14px', fontWeight: 400 }} variant="body2">
-            No asistió
-          </Typography>
+          <Typography sx={{ fontSize: 14 }}>No asistió</Typography>
         </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'row', gap: '8px', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <YellowBox />
-          <Typography sx={{ color: 'neutral.main', fontSize: '14px', fontWeight: 400 }} variant="body2">
-            Tardanza
-          </Typography>
+          <Typography sx={{ fontSize: 14 }}>Tardanza</Typography>
         </Box>
       </Box>
+
       <TableContainer component={Box}>
-        <Table sx={{ width: '306px' }} aria-label="Tabla de asistencia">
+        <Table sx={{ width: 306 }} aria-label="Tabla de asistencia">
           <TableHead>
             <TableRow>
               <TableCell>
-                <Typography sx={{ color: 'neutral.dark', fontSize: '16px', fontWeight: 700 }} variant="body2">
-                  Fecha
-                </Typography>
+                <Typography sx={{ fontWeight: 700 }}>Fecha</Typography>
               </TableCell>
               <TableCell>
-                <Typography sx={{ color: 'neutral.dark', fontSize: '16px', fontWeight: 700 }} variant="body2">
-                  Asistencia
-                </Typography>
+                <Typography sx={{ fontWeight: 700 }}>Asistencia</Typography>
               </TableCell>
             </TableRow>
           </TableHead>
-          <TableBody
-            sx={{
-              '& tr:first-child th, & tr:first-child td': { pt: 2 },
-              '& td, & th': { border: 'none', py: 1 },
-            }}
-          >
-            <>
-              <TableRow>
-                <TableCell component="th" scope="row" colSpan={2}>
-                  <Typography sx={{ color: 'neutral.dark', fontSize: '16px', fontWeight: 700 }} variant="body2">
-                    Semana 1
-                  </Typography>
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell sx={{ color: 'neutral.main' }} component="th" scope="row">
-                  Lunes 01/06/2024
-                </TableCell>
-                <TableCell sx={{ display: 'flex', justifyContent: 'center' }}>
-                  <GreenBox />
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell sx={{ color: 'neutral.main' }} component="th" scope="row">
-                  Lunes 01/06/2024
-                </TableCell>
-                <TableCell sx={{ display: 'flex', justifyContent: 'center' }}>
-                  <RedBox />
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell sx={{ color: 'neutral.main' }} component="th" scope="row">
-                  Lunes 01/06/2024
-                </TableCell>
-                <TableCell sx={{ display: 'flex', justifyContent: 'center' }}>
-                  <YellowBox />
-                </TableCell>
-              </TableRow>
-            </>
+          <TableBody sx={{ '& td, & th': { border: 'none', py: 1 } }}>
+            {weeks.map((week) => (
+              <React.Fragment key={week.weekId}>
+                <TableRow>
+                  <TableCell colSpan={2}>
+                    <Typography sx={{ fontWeight: 700 }}>{week.weekName}</Typography>
+                  </TableCell>
+                </TableRow>
+                {week.attendances.map((att) => (
+                  <TableRow key={att.date}>
+                    <TableCell sx={{ color: 'neutral.main' }}>{att.formattedDate}</TableCell>
+                    <TableCell sx={{ textAlign: 'center' }}>
+                      {att.status === AttendanceStatus.PRESENT && <GreenBox />}
+                      {att.status === AttendanceStatus.ABSENT && <RedBox />}
+                      {att.status === AttendanceStatus.LATE && <YellowBox />}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </React.Fragment>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
     </>
   );
-}
+};
+
+export default AlumnoAsistenciaView;

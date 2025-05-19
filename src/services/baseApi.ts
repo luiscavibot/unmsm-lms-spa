@@ -5,7 +5,6 @@ import { API_URL } from '@/configs/consts';
 import { logoutAsync } from '@/store/thunks/logoutAsync';
 import { refreshAsync } from '@/store/thunks/refreshAuthAsync';
 
-// BaseQuery “crudo” con el header Authorization
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: API_URL,
   prepareHeaders: (headers, { getState }) => {
@@ -36,6 +35,8 @@ const baseQueryWithReauth = async (args: string | FetchArgs, api: any, extraOpti
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: [lab.Courses, lab.Semesters, lab.Users, lab.Materials],
+  tagTypes: [lab.Courses, lab.Semesters, lab.Users, lab.Materials, lab.Attendance],
+  refetchOnFocus: true,
+  refetchOnReconnect: true,
   endpoints: () => ({}),
 });
