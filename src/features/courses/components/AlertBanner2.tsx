@@ -106,7 +106,7 @@ export default function AlertBanner2({ open, onClose }: AlertBannerProps) {
               color: theme.palette.neutral.lightest,
               fontSize: 24,
               fontWeight: 400,
-              lineHeight: 1,
+              lineHeight: 1.2,
               mb: '4px',
               display: 'block',
             }}
@@ -126,7 +126,12 @@ export default function AlertBanner2({ open, onClose }: AlertBannerProps) {
             *La encuesta es anónima. Tus respuestas se mantendrán confidenciales.
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
-            <Button variant="contained" size="large">
+            <Button
+              href="https://docs.google.com/forms/d/e/1FAIpQLSep27iloSXAIhT5ZZTpezNECz1N9B2ixfN3QikUwOVEU6GYlw/viewform"
+              target="_blank"
+              variant="contained"
+              size="large"
+            >
               Acceder a Formulario
             </Button>
           </Box>
