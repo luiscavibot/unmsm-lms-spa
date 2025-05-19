@@ -123,7 +123,7 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
         <AlumnoAsistenciaView blockId={selectedBlock.blockId} />
       </TabPanel>
       <TabPanel value={valueTab} index={2}>
-        <AlumnoNotasView />
+        <AlumnoNotasView blockId={selectedBlock.blockId} />
       </TabPanel>
     </Box>
   );

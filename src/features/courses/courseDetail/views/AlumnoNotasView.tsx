@@ -1,35 +1,38 @@
-import React from 'react';
+import { FC } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import { Box, Tooltip } from '@mui/material';
+import { Box, Tooltip, CircularProgress, Alert } from '@mui/material';
 import { InfoOutlined } from '@mui/icons-material';
-import { formatDate } from '@/helpers/formatDate';
+import { useGetStudentGradesByBlockIdQuery } from '@/services/grades/gradesSvc';
 
-function createData(name: string, peso: number, fecha: string, nota: number) {
-  fecha = formatDate(fecha);
-  return { name, peso, fecha, nota };
+interface AlumnoNotasViewProps {
+  blockId: string;
 }
 
-const rows = [
-  createData('Test 01', 10, '2025/05/22', 16),
-  createData('Test 02', 10, '2025/05/29', 18),
-  createData('Parcial 01', 40, '2025/06/05', 19),
-];
+const AlumnoNotasView: FC<AlumnoNotasViewProps> = ({ blockId }) => {
+  const { data, isLoading, isFetching, error } = useGetStudentGradesByBlockIdQuery({ blockId });
+  console.log('data', data);
 
-const notaPromedio = 10;
+  if (isLoading || isFetching) {
+    return <CircularProgress />;
+  }
+  if (error || !data) {
+    return <Alert severity="error">Error al cargar las notas.</Alert>;
+  }
 
-export default function AlumnoNotasView() {
+  const { averageGrade, evaluations } = data;
+
   return (
     <TableContainer component={Box}>
-      <Table sx={{ width: 660 }} aria-label="simple table">
+      <Table sx={{ width: 660 }} aria-label="Tabla de notas">
         <TableHead>
           <TableRow>
             <TableCell sx={{ fontWeight: 700 }}>Evaluaciones</TableCell>
-            <TableCell sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <TableCell sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}>
               Peso
               <Tooltip
                 title="Es el valor que tiene una nota dentro del promedio final. Cuanto mayor es el peso, más influye en la calificación. Debe ingresar un número del 1 al 100."
@@ -43,36 +46,35 @@ export default function AlumnoNotasView() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+          {evaluations.map((ev) => (
+            <TableRow key={ev.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
               <TableCell component="th" scope="row">
-                {row.name}
+                {ev.name}
               </TableCell>
-              <TableCell>{row.peso}</TableCell>
-              <TableCell>{row.fecha}</TableCell>
-              <TableCell sx={{ pl: 4 }}>{row.nota}</TableCell>
+              <TableCell>{ev.weight}</TableCell>
+              <TableCell>{ev.evaluationDate}</TableCell>
+              <TableCell sx={{ pl: 4 }}>{ev.grade}</TableCell>
             </TableRow>
           ))}
           <TableRow>
-            <TableCell rowSpan={1} colSpan={2} />
+            <TableCell colSpan={2} />
             <TableCell sx={{ fontWeight: 700 }}>Promedio</TableCell>
             <TableCell>
               <Box
                 sx={{
                   border: '1px solid',
-                  borderColor: notaPromedio >= 11 ? '#A5D6A7' : '#EF9A9A',
-                  backgroundColor: notaPromedio >= 11 ? '#F1F8E9' : '#FEEBEE',
-                  color: notaPromedio >= 11 ? '#33691E' : '#B71C1C',
+                  borderColor: averageGrade >= 11 ? '#A5D6A7' : '#EF9A9A',
+                  backgroundColor: averageGrade >= 11 ? '#F1F8E9' : '#FEEBEE',
+                  color: averageGrade >= 11 ? '#33691E' : '#B71C1C',
                   borderRadius: '4px',
                   lineHeight: '12px',
-                  px: '12.5px',
-                  py: '10px',
+                  px: 2,
+                  py: 1,
                   fontWeight: 'bold',
                   textAlign: 'center',
-                  width: 'fit-content',
                 }}
               >
-                {notaPromedio}
+                {averageGrade}
               </Box>
             </TableCell>
           </TableRow>
@@ -80,4 +82,6 @@ export default function AlumnoNotasView() {
       </Table>
     </TableContainer>
   );
-}
+};
+
+export default AlumnoNotasView;
