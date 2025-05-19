@@ -132,7 +132,7 @@ export default function AlertBanner2({ open, onClose }: AlertBannerProps) {
               variant="contained"
               size="large"
             >
-              Acceder a Formulario
+              Acceder al Formulario
             </Button>
           </Box>
         </Box>
