@@ -20,8 +20,10 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { loginAsync } from '@/store/thunks/loginAsync';
 import { AuthStatusLogin } from '@/store/slices/auth/types';
 import { ChallengeName } from '../interfaces/Cognito';
+import { useTranslation } from 'react-i18next';
 
 const LoginForm = () => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { status, error: authError } = useAppSelector((state) => state.auth);
   const loading = status === AuthStatusLogin.Loading;
@@ -63,7 +65,7 @@ const LoginForm = () => {
 
       {authError && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {authError}
+          {t(authError)}
         </Alert>
       )}
 
@@ -137,7 +139,7 @@ const LoginForm = () => {
 
       <Typography variant="body2" align="center" sx={{ mt: 2 }}>
         ¿Necesitas una cuenta?{' '}
-        <Link href="#" underline="hover">
+        <Link href="mailto:soporteinformaticoupg.fcb@unmsm.edu.pe" underline="hover">
           Contacta a soporte
         </Link>
       </Typography>
