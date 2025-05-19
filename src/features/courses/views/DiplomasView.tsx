@@ -70,7 +70,9 @@ const DiplomasView: React.FC = () => {
   });
 
   const programs = data?.programs ?? [];
-  const countTotalCourses = data ? `${getCountTotalCourses(programs)} ${programs.length > 1 ? 'diplomados' : 'diplomado'}` : '';
+  const countTotalCourses = data
+    ? `${getCountTotalCourses(programs)} ${programs.length > 1 ? 'diplomados' : 'diplomado'}`
+    : '';
 
   return (
     <Box sx={{ bgcolor: theme.palette.neutral.lightest, p: 3, borderRadius: '8px' }}>
@@ -127,7 +129,11 @@ const DiplomasView: React.FC = () => {
           Resultados:
         </Typography>{' '}
         <Typography component="span" sx={{ color: theme.palette.neutral.main, fontSize: '14px', fontWeight: '400' }}>
-          {isLoading || isFetching ? ' Cargando…' : programs.length ? ` ${countTotalCourses}` : ' Sin registros encontrados'}
+          {isLoading || isFetching
+            ? ' Buscando…'
+            : programs.length
+            ? ` ${countTotalCourses}`
+            : ' Sin registros encontrados'}
         </Typography>
       </Typography>
 
@@ -140,12 +146,18 @@ const DiplomasView: React.FC = () => {
       ) : (
         programs.map((program) => (
           <Fragment key={program.programId}>
-            <Typography sx={{ color: theme.palette.secondary.dark, fontSize: '20px', fontWeight: '700', mb: 3 }} variant="h4">
+            <Typography
+              sx={{ color: theme.palette.secondary.dark, fontSize: '20px', fontWeight: '700', mb: 3 }}
+              variant="h4"
+            >
               {program.name}
             </Typography>
             <Stack direction="row" flexWrap="wrap" spacing={2} mb={4} useFlexGap>
               {program.courses.map((course) => (
-                <Box key={course.courseId} sx={{ flex: '1 1 30%', minWidth: 280, maxWidth: '32%', display: 'flex', justifyContent: 'center' }}>
+                <Box
+                  key={course.courseId}
+                  sx={{ flex: '1 1 30%', minWidth: 280, maxWidth: '32%', display: 'flex', justifyContent: 'center' }}
+                >
                   <CardCourse {...course} />
                 </Box>
               ))}

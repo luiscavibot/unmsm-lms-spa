@@ -39,7 +39,7 @@ const AlumnoNotasView: FC<AlumnoNotasViewProps> = ({ blockId }) => {
             <TableCell sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}>
               Peso
               <Tooltip
-                title="Es el valor que tiene una nota dentro del promedio final. Cuanto mayor es el peso, más influye en la calificación. Debe ingresar un número del 1 al 100."
+                title="Este sistema usa promedio ponderado: a cada nota se le asigna un peso, que representa su importancia. Cuanto mayor es el peso, más influye en el promedio final. Los pesos pueden ser números enteros o decimales."
                 placement="top-start"
               >
                 <InfoOutlined sx={{ fontSize: 14 }} />
