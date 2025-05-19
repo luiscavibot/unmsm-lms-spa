@@ -1,7 +1,19 @@
 import React from 'react';
 import EscudoBiologiaIcon from '@/assets/icons/EscudoBiologiaIcon';
 import { Menu as MenuIcon, Logout, Person, Settings } from '@mui/icons-material';
-import { Avatar, Box, Divider, IconButton, ListItemIcon, Menu, MenuItem, Toolbar, Typography, useTheme, styled } from '@mui/material';
+import {
+  Avatar,
+  Box,
+  Divider,
+  IconButton,
+  ListItemIcon,
+  Menu,
+  MenuItem,
+  Toolbar,
+  Typography,
+  useTheme,
+  styled,
+} from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { toggleDrawer } from '@/store/slices/ui/uiSlice';
@@ -94,7 +106,14 @@ export default function Header() {
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <IconButton size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }} onClick={handleToggleDrawer}>
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            sx={{ mr: 2 }}
+            onClick={handleToggleDrawer}
+          >
             <MenuIcon />
           </IconButton>
           <Link to="/courses/posgrado" style={{ display: 'inline-flex', alignItems: 'center', color: 'inherit' }}>
@@ -166,13 +185,13 @@ export default function Header() {
               </Typography>
             </Box>
             <Divider />
-            <MenuItem onClick={handleClose}>
+            <MenuItem onClick={handleClose} disabled>
               <ListItemIcon>
                 <Person fontSize="small" />
               </ListItemIcon>
               Perfil
             </MenuItem>
-            <MenuItem onClick={handleClose}>
+            <MenuItem onClick={handleClose} disabled>
               <ListItemIcon>
                 <Settings fontSize="small" />
               </ListItemIcon>
