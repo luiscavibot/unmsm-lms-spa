@@ -94,9 +94,7 @@ const CourseContent: FC<CourseContentProps> = ({ course }) => {
         </Box>
         <Box>
           <Box sx={{ borderRadius: '7px', p: 1, bgcolor: 'primary.lightest', display: 'inline-block' }}>
-            <Typography>
-              <InfoItem label="Nota final: " value={course.endNote != null ? course.endNote : 'Pendiente'} />
-            </Typography>
+            <InfoItem label="Nota final: " value={course.endNote != null ? course.endNote : 'Pendiente'} />
           </Box>
         </Box>
       </Box>
