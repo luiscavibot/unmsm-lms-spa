@@ -11,6 +11,8 @@ import DoctoratesView from '@/features/courses/views/DoctoratesView';
 import DiplomasView from '@/features/courses/views/DiplomasView';
 import SpecialtiesView from '@/features/courses/views/SpecialtiesView';
 import CoursesPageDataProvider from '@/providers/CoursesPageDataProvider';
+// import AlertBanner from '@/features/courses/components/AlertBanner';
+import AlertBanner2 from '@/features/courses/components/AlertBanner2';
 
 export default function CoursesList() {
   const { type } = useParams();
@@ -33,7 +35,8 @@ export default function CoursesList() {
         <Typography sx={{ color: 'text.primary' }}>Cursos</Typography>
       </Breadcrumbs>
       <CoursesPageDataProvider>
-        <AlertBanner open={open} onClose={() => setOpen(false)} />
+        {/* <AlertBanner open={open} onClose={() => setOpen(false)} /> */}
+        <AlertBanner2 open={open} onClose={() => setOpen(false)} />
         <CoursesTabs value={value} onChange={handleChange} />
         <TabPanel value={value} index={0}>
           <MasterDegreesView />
