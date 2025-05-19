@@ -3,6 +3,7 @@ import { BlockType, CourseDetailResponseDto } from '@/services/courses/types';
 import {
   Box,
   Breadcrumbs,
+  CircularProgress,
   FormControl,
   InputLabel,
   Link,
@@ -126,7 +127,13 @@ const CourseContent: FC<CourseContentProps> = ({ course }) => {
           </Select>
         </FormControl>
       </Stack>
-      <Suspense fallback={<Typography>Cargando bloque...</Typography>}>
+      <Suspense
+        fallback={
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <CircularProgress />
+          </Box>
+        }
+      >
         <BloqueView selectedBlock={selectedBlock} />
       </Suspense>
     </>
