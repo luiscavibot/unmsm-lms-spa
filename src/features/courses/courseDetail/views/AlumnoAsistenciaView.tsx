@@ -62,7 +62,7 @@ const AlumnoAsistenciaView: FC<AlumnoAsistenciaViewProps> = ({ blockId }) => {
   return (
     <>
       <Alert sx={{ mb: 3 }} variant="outlined" severity="info">
-        La asistencia mínima requerida para pasar el curso es del {data.attendancePercentage}.
+        La asistencia mínima requerida para pasar el curso es del 70%.
       </Alert>
 
       <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between', mb: 4 }}>

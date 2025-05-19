@@ -20,7 +20,6 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
           flexGrow: 1,
           px: 2,
           py: 3,
-          // Centrar y limitar ancho:
           mx: 'auto',
           width: '100%',
           maxWidth: CONTENT_MAX_WIDTH,
