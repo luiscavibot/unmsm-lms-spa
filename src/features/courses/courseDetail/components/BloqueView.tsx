@@ -12,6 +12,7 @@ interface BloqueViewProps {
 }
 
 const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
+  console.log('selectedBlock', selectedBlock);
   const [valueTab, setValueTab] = React.useState(0);
   const handleChange = (_event: React.SyntheticEvent, newValueTab: number) => {
     setValueTab(newValueTab);
@@ -99,7 +100,7 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
 
       <CoursesDetailTabs value={valueTab} onChange={handleChange} />
       <TabPanel value={valueTab} index={0}>
-        <MaterialesView />
+        <MaterialesView blockId={selectedBlock.blockId} />
       </TabPanel>
       <TabPanel value={valueTab} index={1}>
         <AlumnoAsistenciaView />
