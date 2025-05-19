@@ -1,5 +1,6 @@
 import { MainLayout } from '@/components/layouts/MainLayout/MainLayout';
 import CourseContent from '@/features/courses/courseDetail/components/CourseContent';
+import SkeletonView from '@/features/courses/courseDetail/components/SkeletonView';
 import { useGetCoursesDetailCourseOfferingIdQuery as useGetCourse } from '@/services/courses/coursesSvc';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { Navigate, useParams } from 'react-router-dom';
@@ -11,7 +12,7 @@ export default function CourseDetail() {
   if (isLoading) {
     return (
       <MainLayout>
-        <p>Skeleton de sección…</p>
+        <SkeletonView />
       </MainLayout>
     );
   }

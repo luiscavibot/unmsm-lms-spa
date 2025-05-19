@@ -18,7 +18,11 @@ const AlumnoNotasView: FC<AlumnoNotasViewProps> = ({ blockId }) => {
   console.log('data', data);
 
   if (isLoading || isFetching) {
-    return <CircularProgress />;
+    return (
+      <Box sx={{ textAlign: 'center', py: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
   }
   if (error || !data) {
     return <Alert severity="error">Error al cargar las notas.</Alert>;

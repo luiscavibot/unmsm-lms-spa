@@ -1,7 +1,16 @@
 import React, { FC, useEffect, useState } from 'react';
 import { formatDate } from '@/helpers/formatDate';
 import { ArrowDropDown } from '@mui/icons-material';
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Divider, Typography } from '@mui/material';
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Box,
+  Button,
+  CircularProgress,
+  Divider,
+  Typography,
+} from '@mui/material';
 import { MaterialType, WeekWithMaterialsDto } from '@/services/materials/types';
 import { useGetMaterialsByBlockIdQuery } from '@/services/materials/materialsSvc';
 
@@ -35,7 +44,11 @@ const MaterialesView: FC<MaterialesViewProps> = ({ blockId }) => {
   }, [weeks]);
 
   if (isLoading || isFetching) {
-    return <Typography>Cargando materiales…</Typography>;
+    return (
+      <Box sx={{ textAlign: 'center', py: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
   }
   if (error) {
     return <Typography color="error">Error al cargar materiales.</Typography>;

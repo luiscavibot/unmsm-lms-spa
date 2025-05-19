@@ -40,7 +40,11 @@ const AlumnoAsistenciaView: FC<AlumnoAsistenciaViewProps> = ({ blockId }) => {
   }, [value]);
 
   if (isLoading || isFetching) {
-    return <CircularProgress />;
+    return (
+      <Box sx={{ textAlign: 'center', py: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
   }
   if (error || !data) {
     return <Alert severity="error">Error al cargar asistencias.</Alert>;
