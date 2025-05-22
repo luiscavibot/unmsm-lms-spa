@@ -3,7 +3,7 @@ import { useParams, Navigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layouts/MainLayout/MainLayout';
 import { Breadcrumbs, Link, Typography } from '@mui/material';
 const allowedTypes = ['pregrado', 'posgrado'];
-import AlertBanner from '@/features/courses/components/AlertBanner';
+// import AlertBanner from '@/features/courses/components/AlertBanner';
 import CoursesTabs from '@/features/courses/components/CoursesTabs';
 import TabPanel from '@/features/courses/components/TabPanel';
 import MasterDegreesView from '@/features/courses/views/MasterDegreesView';
@@ -11,7 +11,6 @@ import DoctoratesView from '@/features/courses/views/DoctoratesView';
 import DiplomasView from '@/features/courses/views/DiplomasView';
 import SpecialtiesView from '@/features/courses/views/SpecialtiesView';
 import CoursesPageDataProvider from '@/providers/CoursesPageDataProvider';
-// import AlertBanner from '@/features/courses/components/AlertBanner';
 import AlertBanner2 from '@/features/courses/components/AlertBanner2';
 
 export default function CoursesList() {

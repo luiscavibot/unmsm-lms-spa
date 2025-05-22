@@ -1,6 +1,8 @@
 import { Alert, Box, Button, Collapse, IconButton, Typography } from '@mui/material';
 import { Close, Sensors } from '@mui/icons-material';
-import { useTheme } from '@mui/material/styles';
+
+import { createCan } from '@/helpers/createCan';
+import { role } from '@/configs/consts';
 
 interface AlertBannerProps {
   open: boolean;
@@ -8,7 +10,16 @@ interface AlertBannerProps {
 }
 
 export default function AlertBanner({ open, onClose }: AlertBannerProps) {
-  const theme = useTheme();
+  const can = createCan(role);
+
+  const canStartClass = can('start', 'Class');
+  const canJoinClass = can('join', 'Class');
+
+  const description = canStartClass
+    ? 'Prepárate para una nueva sesión de aprendizaje.'
+    : 'Prepárate para seguir aprendiendo.';
+
+  const buttonLabel = canStartClass ? 'Iniciar clase' : 'Ir a clase';
 
   return (
     <Collapse in={open}>
@@ -21,8 +32,8 @@ export default function AlertBanner({ open, onClose }: AlertBannerProps) {
         }
         sx={{
           mb: 4,
-          backgroundColor: theme.palette.secondary.darkest,
-          color: theme.palette.neutral.lightest,
+          backgroundColor: 'secondary.darkest',
+          color: 'neutral.lightest',
           borderRadius: '24px',
           display: 'flex',
           flexDirection: 'row',
@@ -47,7 +58,7 @@ export default function AlertBanner({ open, onClose }: AlertBannerProps) {
         <Box sx={{ maxWidth: 550 }}>
           <Typography
             sx={{
-              color: theme.palette.neutral.lightest,
+              color: 'neutral.lightest',
               fontSize: 32,
               fontWeight: 700,
               lineHeight: 1,
@@ -72,16 +83,16 @@ export default function AlertBanner({ open, onClose }: AlertBannerProps) {
           </Typography>
           <Typography
             sx={{
-              color: theme.palette.neutral.lightest,
+              color: 'neutral.lightest',
               fontSize: 24,
               fontWeight: 400,
             }}
           >
-            Prepárate para seguir aprendiendo.
+            {description}
           </Typography>
           <Typography
             sx={{
-              color: theme.palette.neutral.lightest,
+              color: 'neutral.lightest',
               fontSize: 20,
               fontWeight: 700,
               mt: '16px',
@@ -93,9 +104,11 @@ export default function AlertBanner({ open, onClose }: AlertBannerProps) {
             <span>Horario: 6:00pm</span>
           </Typography>
         </Box>
-        <Button variant="contained" size="large">
-          Ir a clase
-        </Button>
+        {(canStartClass || canJoinClass) && (
+          <Button variant="contained" size="large">
+            {buttonLabel}
+          </Button>
+        )}
       </Alert>
     </Collapse>
   );
