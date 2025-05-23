@@ -1,12 +1,26 @@
 import React, { FC } from 'react';
-import { Box, Button, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  IconButton,
+  List,
+  ListItem,
+  Typography,
+} from '@mui/material';
 import CoursesDetailTabs from './CoursesDetailTabs';
 import TabPanel from '../../components/TabPanel';
 import MaterialesView from '../views/MaterialesView';
 import AlumnoAsistenciaView from '../views/AlumnoAsistenciaView';
 import AlumnoNotasView from '../views/AlumnoNotasView';
-import { ContentPaste, Videocam } from '@mui/icons-material';
+import { CheckCircleOutline, Close, ContentPaste, Videocam } from '@mui/icons-material';
 import { BlockDetailDto } from '@/services/courses/types';
+
+import { createCan } from '@/helpers/createCan';
+import { role } from '@/configs/consts';
 interface BloqueViewProps {
   selectedBlock: BlockDetailDto;
 }
@@ -16,6 +30,19 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
   const handleChange = (_event: React.SyntheticEvent, newValueTab: number) => {
     setValueTab(newValueTab);
   };
+
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const can = createCan(role);
+
+  const canViewAsStudent = can('viewStudentResources', 'Resources');
+  const canViewAsTeacher = can('viewTeacherResources', 'Resources');
+  const canEditResources = can('editTeacherResources', 'Resources');
+
+  const existsSyllabus = selectedBlock.syllabus && selectedBlock.syllabus.downloadUrl.trim() !== '';
+  const existsCV = selectedBlock.cv && selectedBlock.cv.downloadUrl.trim() !== '';
 
   return (
     <Box sx={{ px: '24px', py: '32px', bgcolor: 'neutral.lightest', borderRadius: '8px' }}>
@@ -80,28 +107,170 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
               </Typography>
             </Box>
           )}
-          <Box sx={{ display: 'flex', gap: '10px' }}>
-            <Button
-              size="small"
-              startIcon={<ContentPaste />}
-              variant="outlined"
-              color="secondary"
-              href={selectedBlock.syllabus.downloadUrl}
-              target="_blank"
-            >
-              Syllabus
-            </Button>
-            <Button
-              size="small"
-              startIcon={<ContentPaste />}
-              variant="outlined"
-              color="secondary"
-              href={selectedBlock.cv.downloadUrl}
-              target="_blank"
-            >
-              CV del docente
-            </Button>
-          </Box>
+          {canViewAsStudent && (
+            <Box sx={{ display: 'flex', gap: '10px' }}>
+              {existsSyllabus && (
+                <Button
+                  size="small"
+                  startIcon={<ContentPaste />}
+                  variant="outlined"
+                  color="secondary"
+                  href={selectedBlock.syllabus.downloadUrl}
+                  target="_blank"
+                >
+                  Syllabus
+                </Button>
+              )}
+              {existsCV && (
+                <Button
+                  size="small"
+                  startIcon={<ContentPaste />}
+                  variant="outlined"
+                  color="secondary"
+                  href={selectedBlock.cv.downloadUrl}
+                  target="_blank"
+                >
+                  CV del docente
+                </Button>
+              )}
+            </Box>
+          )}
+          {canViewAsTeacher && (
+            <Box sx={{ display: 'flex', gap: '10px' }}>
+              {existsSyllabus ? (
+                <Button
+                  size="small"
+                  startIcon={<CheckCircleOutline />}
+                  variant="outlined"
+                  color="success"
+                  href={selectedBlock.syllabus.downloadUrl}
+                  target="_blank"
+                >
+                  Syllabus
+                </Button>
+              ) : (
+                <Button size="small" startIcon={<Close />} variant="outlined" color="error" sx={{ cursor: 'default' }}>
+                  Syllabus
+                </Button>
+              )}
+              {existsCV ? (
+                <Button
+                  size="small"
+                  startIcon={<CheckCircleOutline />}
+                  variant="outlined"
+                  color="success"
+                  href={selectedBlock.cv.downloadUrl}
+                  target="_blank"
+                >
+                  CV del docente
+                </Button>
+              ) : (
+                <Button size="small" startIcon={<Close />} variant="outlined" color="error" sx={{ cursor: 'default' }}>
+                  CV del docente
+                </Button>
+              )}
+              {canEditResources && (
+                <>
+                  <Button
+                    size="small"
+                    variant="text"
+                    color="secondary"
+                    sx={{ textDecoration: 'underline', '&:hover': { textDecoration: 'underline' } }}
+                    onClick={handleOpen}
+                  >
+                    Editar archivos
+                  </Button>
+                  <Dialog
+                    onClose={handleClose}
+                    aria-labelledby="customized-dialog-title"
+                    open={open}
+                    sx={{ '& .MuiDialog-paper': { borderRadius: '24px' } }}
+                  >
+                    <DialogTitle
+                      color="secondary.dark"
+                      sx={{ m: 0, p: '16px 24px', fontSize: '20px', fontWeight: '700' }}
+                      id="customized-dialog-title"
+                    >
+                      Archivos
+                    </DialogTitle>
+                    <IconButton
+                      aria-label="close"
+                      color="inherit"
+                      size="medium"
+                      sx={{
+                        position: 'absolute',
+                        right: 8,
+                        top: 8,
+                      }}
+                      onClick={handleClose}
+                    >
+                      <Close fontSize="inherit" />
+                    </IconButton>
+                    <DialogContent sx={{ p: '0px 24px 24px' }}>
+                      <List disablePadding>
+                        <ListItem sx={{ py: '16px' }} disablePadding>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', gap: '24px' }}>
+                            <Box sx={{ minWidth: { md: '300px' } }}>
+                              <Typography sx={{ fontWeight: '700', color: 'neutral.dark' }}>Syllabus</Typography>
+                              <Typography sx={{ fontSize: '14', fontWeight: '400', color: 'neutral.dark' }}>
+                                28 de feb. de 2025
+                              </Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', gap: '8px' }}>
+                              {existsSyllabus ? (
+                                <>
+                                  <Button size="medium" variant="text" color="secondary">
+                                    Editar
+                                  </Button>
+                                  <Button size="medium" variant="outlined" color="secondary">
+                                    Eliminar
+                                  </Button>
+                                </>
+                              ) : (
+                                <Button size="medium" variant="outlined" color="secondary">
+                                  Agregar
+                                </Button>
+                              )}
+                            </Box>
+                          </Box>
+                        </ListItem>
+                        <Divider />
+                        <ListItem sx={{ py: '16px' }} disablePadding>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', gap: '24px' }}>
+                            <Box sx={{ minWidth: { md: '300px' } }}>
+                              <Typography sx={{ fontWeight: '700', color: 'neutral.dark' }}>CV del docente</Typography>
+                              {existsCV && (
+                                <Typography sx={{ fontSize: '14', fontWeight: '400', color: 'neutral.dark' }}>
+                                  28 de feb. de 2025
+                                </Typography>
+                              )}
+                            </Box>
+                            <Box sx={{ display: 'flex', gap: '8px' }}>
+                              {existsCV ? (
+                                <>
+                                  <Button size="medium" variant="text" color="secondary">
+                                    Editar
+                                  </Button>
+                                  <Button size="medium" variant="outlined" color="secondary">
+                                    Eliminar
+                                  </Button>
+                                </>
+                              ) : (
+                                <Button size="medium" variant="outlined" color="secondary">
+                                  Agregar
+                                </Button>
+                              )}
+                            </Box>
+                          </Box>
+                        </ListItem>
+                        <Divider />
+                      </List>
+                    </DialogContent>
+                  </Dialog>
+                </>
+              )}
+            </Box>
+          )}
         </Box>
         <Button
           size="large"
