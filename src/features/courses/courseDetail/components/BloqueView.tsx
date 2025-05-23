@@ -21,25 +21,55 @@ import { BlockDetailDto } from '@/services/courses/types';
 
 import { createCan } from '@/helpers/createCan';
 import { role } from '@/configs/consts';
+import UploadFileDialog from '@/components/common/UploadFileDialog';
 interface BloqueViewProps {
   selectedBlock: BlockDetailDto;
 }
 
 const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
   const [valueTab, setValueTab] = React.useState(0);
+  const [open, setOpen] = React.useState(false);
+  const [openAddFileDialog, setOpenAddFileDialog] = React.useState(false);
+  const [fileTarget, setFileTarget] = React.useState<'syllabus' | 'cv' | null>(null);
+  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
+
+  // lógica de los tabs
+
   const handleChange = (_event: React.SyntheticEvent, newValueTab: number) => {
     setValueTab(newValueTab);
   };
 
-  const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  //   lógica para subir archivos
+
+  const handleOpenAddFileDialog = (type: 'syllabus' | 'cv') => {
+    setFileTarget(type);
+    setOpenAddFileDialog(true);
+  };
+  const handleCloseAddFileDialog = () => {
+    setSelectedFile(null);
+    setFileTarget(null);
+    setOpenAddFileDialog(false);
+  };
+
+  const handleAddFile = () => {
+    if (!selectedFile || !fileTarget) return;
+    console.log(`Subiendo archivo para ${fileTarget}`, selectedFile);
+    // Agregar lógica para subir el archivo al servidor
+    handleCloseAddFileDialog();
+  };
+
+  //   lógica para verificar permisos, se reemplazará por CASL
 
   const can = createCan(role);
 
   const canViewAsStudent = can('viewStudentResources', 'Resources');
   const canViewAsTeacher = can('viewTeacherResources', 'Resources');
   const canEditResources = can('editTeacherResources', 'Resources');
+
+  //   lógica para verificar si existen los archivos
 
   const existsSyllabus = selectedBlock.syllabus && selectedBlock.syllabus.downloadUrl.trim() !== '';
   const existsCV = selectedBlock.cv && selectedBlock.cv.downloadUrl.trim() !== '';
@@ -189,7 +219,6 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
                     <DialogTitle
                       color="secondary.dark"
                       sx={{ m: 0, p: '16px 24px', fontSize: '20px', fontWeight: '700' }}
-                      id="customized-dialog-title"
                     >
                       Archivos
                     </DialogTitle>
@@ -216,10 +245,15 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
                                 28 de feb. de 2025
                               </Typography>
                             </Box>
-                            <Box sx={{ display: 'flex', gap: '8px' }}>
+                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                               {existsSyllabus ? (
                                 <>
-                                  <Button size="medium" variant="text" color="secondary">
+                                  <Button
+                                    size="medium"
+                                    variant="text"
+                                    color="secondary"
+                                    onClick={() => handleOpenAddFileDialog('syllabus')}
+                                  >
                                     Editar
                                   </Button>
                                   <Button size="medium" variant="outlined" color="secondary">
@@ -227,7 +261,12 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
                                   </Button>
                                 </>
                               ) : (
-                                <Button size="medium" variant="outlined" color="secondary">
+                                <Button
+                                  size="medium"
+                                  variant="outlined"
+                                  color="secondary"
+                                  onClick={() => handleOpenAddFileDialog('syllabus')}
+                                >
                                   Agregar
                                 </Button>
                               )}
@@ -245,10 +284,15 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
                                 </Typography>
                               )}
                             </Box>
-                            <Box sx={{ display: 'flex', gap: '8px' }}>
+                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                               {existsCV ? (
                                 <>
-                                  <Button size="medium" variant="text" color="secondary">
+                                  <Button
+                                    size="medium"
+                                    variant="text"
+                                    color="secondary"
+                                    onClick={() => handleOpenAddFileDialog('cv')}
+                                  >
                                     Editar
                                   </Button>
                                   <Button size="medium" variant="outlined" color="secondary">
@@ -256,7 +300,12 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
                                   </Button>
                                 </>
                               ) : (
-                                <Button size="medium" variant="outlined" color="secondary">
+                                <Button
+                                  size="medium"
+                                  variant="outlined"
+                                  color="secondary"
+                                  onClick={() => handleOpenAddFileDialog('cv')}
+                                >
                                   Agregar
                                 </Button>
                               )}
@@ -267,6 +316,13 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
                       </List>
                     </DialogContent>
                   </Dialog>
+                  <UploadFileDialog
+                    open={openAddFileDialog}
+                    onClose={handleCloseAddFileDialog}
+                    onUpload={handleAddFile}
+                    selectedFile={selectedFile}
+                    onFileSelect={(file) => setSelectedFile(file)}
+                  />
                 </>
               )}
             </Box>
