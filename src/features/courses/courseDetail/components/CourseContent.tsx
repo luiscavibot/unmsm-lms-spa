@@ -60,7 +60,7 @@ const CourseContent: FC<CourseContentProps> = ({ course }) => {
         </Link>
         <Typography sx={{ color: 'text.primary' }}>{course.name}</Typography>
       </Breadcrumbs>
-      <Typography sx={{ color: 'secondary.dark', fontSize: '20px', fontWeight: '700', mb: 1 }} variant="h4">
+      <Typography sx={{ color: 'secondary.dark', fontSize: '44px', fontWeight: '700', mb: 1 }} variant="h4">
         {course.name}
       </Typography>
       <Typography sx={{ color: 'neutral.main', fontSize: '14px', fontWeight: '400', mb: 5 }} variant="body2">
