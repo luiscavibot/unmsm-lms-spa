@@ -15,6 +15,7 @@ import CoursesDetailTabs from './CoursesDetailTabs';
 import TabPanel from '../../components/TabPanel';
 import MaterialesView from '../views/MaterialesView';
 import AlumnoAsistenciaView from '../views/AlumnoAsistenciaView';
+import DocenteAsistenciaView from '../views/DocenteAsistenciaView';
 import AlumnoNotasView from '../views/AlumnoNotasView';
 import { CheckCircleOutline, Close, ContentPaste, Videocam } from '@mui/icons-material';
 import { BlockDetailDto } from '@/services/courses/types';
@@ -68,6 +69,8 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
   const canViewAsStudent = can('viewStudentResources', 'Resources');
   const canViewAsTeacher = can('viewTeacherResources', 'Resources');
   const canEditResources = can('editTeacherResources', 'Resources');
+  const canMarkAttendance = can('markAttendance', 'Attendance');
+  const canViewStudentAttendance = can('viewStudentAttendance', 'Attendance');
 
   //   lógica para verificar si existen los archivos
 
@@ -345,7 +348,8 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
         <MaterialesView blockId={selectedBlock.blockId} />
       </TabPanel>
       <TabPanel value={valueTab} index={1}>
-        <AlumnoAsistenciaView blockId={selectedBlock.blockId} />
+        {canMarkAttendance && <DocenteAsistenciaView blockId={selectedBlock.blockId} />}
+        {canViewStudentAttendance && <AlumnoAsistenciaView blockId={selectedBlock.blockId} />}
       </TabPanel>
       <TabPanel value={valueTab} index={2}>
         <AlumnoNotasView blockId={selectedBlock.blockId} />

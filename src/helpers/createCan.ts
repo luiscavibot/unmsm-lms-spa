@@ -3,7 +3,6 @@ type Action =
   | 'start'
   | 'join'
   | 'viewStudentAttendance'
-  | 'viewTeacherAttendance'
   | 'markAttendance'
   | 'viewStudentResources'
   | 'viewTeacherResources'
@@ -19,11 +18,7 @@ export function createCan(role: Role) {
 
     if (subject === 'Attendance') {
       if (role === 'student' && action === 'viewStudentAttendance') return true;
-      if (
-        (role === 'assistant_teacher' || role === 'lead_teacher') &&
-        (action === 'viewTeacherAttendance' || action === 'markAttendance')
-      )
-        return true;
+      if ((role === 'assistant_teacher' || role === 'lead_teacher') && action === 'markAttendance') return true;
     }
 
     if (subject === 'Resources') {
