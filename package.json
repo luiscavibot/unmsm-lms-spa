@@ -41,6 +41,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.806.0",
+    "@casl/ability": "^6.7.3",
+    "@casl/react": "^5.0.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^6.1.3",

@@ -9,19 +9,22 @@ import { store } from './store/store';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { esES } from '@mui/x-date-pickers/locales';
+import AbilityProvider from './providers/AbilityProvider';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <Provider store={store}>
-      <LocalizationProvider
-        dateAdapter={AdapterDayjs}
-        adapterLocale="es"
-        localeText={esES.components.MuiLocalizationProvider.defaultProps.localeText}
-      >
-        <AppThemeProvider>
-          <App />
-        </AppThemeProvider>
-      </LocalizationProvider>
+      <AbilityProvider>
+        <LocalizationProvider
+          dateAdapter={AdapterDayjs}
+          adapterLocale="es"
+          localeText={esES.components.MuiLocalizationProvider.defaultProps.localeText}
+        >
+          <AppThemeProvider>
+            <App />
+          </AppThemeProvider>
+        </LocalizationProvider>
+      </AbilityProvider>
     </Provider>
   </React.StrictMode>,
 );

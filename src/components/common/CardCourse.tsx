@@ -4,10 +4,20 @@ import { Course } from '@/services/courses/types';
 import { formatDate } from '@/helpers/formatDate';
 import { getInitials } from '@/helpers/avatar';
 import { Link } from 'react-router-dom';
+import { Can } from './Can';
 
 type CardCourseProps = Course;
 
-export default function CardCourse({ courseId, name, teacher, startDate, endDate, semester, module, unstarted }: CardCourseProps) {
+export default function CardCourse({
+  courseId,
+  name,
+  teacher,
+  startDate,
+  endDate,
+  semester,
+  module,
+  unstarted,
+}: CardCourseProps) {
   const theme = useTheme();
   const teacherNameInitials = getInitials(teacher.name);
   const startDateFormatted = formatDate(startDate);
@@ -42,26 +52,37 @@ export default function CardCourse({ courseId, name, teacher, startDate, endDate
               variant="outlined"
             />
           )}
-          <Typography gutterBottom sx={{ color: theme.palette.secondary.dark, fontSize: '16px', fontWeight: '700', mb: '12px', lineHeight: '1.2' }}>
+          <Typography
+            gutterBottom
+            sx={{
+              color: theme.palette.secondary.dark,
+              fontSize: '16px',
+              fontWeight: '700',
+              mb: '12px',
+              lineHeight: '1.2',
+            }}
+          >
             {name}
           </Typography>
-          <Stack direction="row" spacing={2} sx={{ mb: 2, alignItems: 'center' }}>
-            <Avatar
-              sx={{
-                bgcolor: avatarColor,
-              }}
-            >
-              {teacherNameInitials}
-            </Avatar>
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <Typography sx={{ fontSize: 14, fontWeight: 400 }} variant="body2">
-                Docente responsable
-              </Typography>
-              <Typography sx={{ fontSize: 14, fontWeight: 600 }} variant="body2">
-                {teacher.name}
-              </Typography>
-            </Box>
-          </Stack>
+          <Can I="read" a="courseCardTeacherName">
+            <Stack direction="row" spacing={2} sx={{ mb: 2, alignItems: 'center' }}>
+              <Avatar
+                sx={{
+                  bgcolor: avatarColor,
+                }}
+              >
+                {teacherNameInitials}
+              </Avatar>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Typography sx={{ fontSize: 14, fontWeight: 400 }} variant="body2">
+                  Docente responsable
+                </Typography>
+                <Typography sx={{ fontSize: 14, fontWeight: 600 }} variant="body2">
+                  {teacher.name}
+                </Typography>
+              </Box>
+            </Stack>
+          </Can>
           <Divider sx={{ mb: 2 }} />
           <Stack direction="column" sx={{ gap: unstarted ? '12px 0px' : '44px 0px' }}>
             <Stack direction="column" spacing={'4px'}>

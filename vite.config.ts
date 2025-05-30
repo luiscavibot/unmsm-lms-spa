@@ -32,6 +32,9 @@ export default defineConfig({
       '@/helpers': '/src/helpers',
       '@/providers': '/src/providers',
       '@/configs': '/src/configs',
+      '@/abilities': '/src/abilities',
+      '@/roles': '/src/roles',
+      '@/contexts': '/src/contexts',
     },
   },
 });
