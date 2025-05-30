@@ -64,7 +64,7 @@ export default function CardCourse({
           >
             {name}
           </Typography>
-          <Can I="read" a="courseCardTeacherName">
+          <Can I="view" a="courseCardTeacherName">
             <Stack direction="row" spacing={2} sx={{ mb: 2, alignItems: 'center' }}>
               <Avatar
                 sx={{

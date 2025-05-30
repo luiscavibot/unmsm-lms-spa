@@ -14,11 +14,15 @@ export function defineAbilitiesFor(roles: Role[]): AppAbility {
         break;
 
       case UserRole.Student:
-        can('read', 'courseCardTeacherName');
+        can('view', 'courseCardTeacherName');
+        break;
+
+      case UserRole.Teacher:
+        cannot('view', 'courseCardTeacherName');
         break;
 
       default:
-        cannot('read', 'courseCardTeacherName');
+        cannot('view', 'courseCardTeacherName');
         break;
     }
   });
