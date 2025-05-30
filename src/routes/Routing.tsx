@@ -11,6 +11,8 @@ import ResetPasswordConfirmation from '@/pages/Auth/ResetPasswordConfirmation';
 import CoursesList from '@/pages/Courses/CoursesList';
 import CourseDetail from '@/pages/Courses/CourseDetail';
 import NewPassword from '@/pages/Auth/NewPassword';
+// import RequireAbility from './components/RequireAbility';
+import FinalGrades from '@/pages/Courses/FinalGrades';
 const Routing: React.FC = () => (
   <Routes>
     {/* Redirect root */}
@@ -30,7 +32,11 @@ const Routing: React.FC = () => (
     <Route element={<RequireAuth />}>
       <Route path="/courses/:type" element={<CoursesList />} />
       <Route path="/courses/:type/:courseOfferingId" element={<CourseDetail />} />
+      {/* <Route element={<RequireAbility action="viewFinalGrades" subject="Grades" />}>
+        <Route path="/courses/:type/:courseOfferingId/final-grades" element={<FinalGrades />} />
+      </Route> */}
     </Route>
+    <Route path="/courses/posgrado/course/final-grades" element={<FinalGrades />} />
     {/* Fallback 404 → redirige a home */}
     <Route path="*" element={<Navigate to="/" replace />} />
   </Routes>
