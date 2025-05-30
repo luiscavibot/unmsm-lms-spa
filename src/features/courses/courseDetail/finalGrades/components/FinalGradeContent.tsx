@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import InfoItem from '../../components/InfoItem';
 import { SentimentNeutral, SentimentSatisfiedAlt, SentimentVeryDissatisfied } from '@mui/icons-material';
+import { PieChart } from '@mui/x-charts/PieChart';
 
 const labelStyle = { fontWeight: 700, color: 'neutral.dark' };
 const valueStyle = { fontWeight: 400, color: 'neutral.main' };
@@ -283,7 +284,35 @@ const FinalGradeContent = () => {
             </Table>
           </TableContainer>
           <Box>
-            {/* Gráfica */}
+            <PieChart
+              sx={{ mb: '24px' }}
+              series={[
+                {
+                  data: [
+                    {
+                      id: 0,
+                      value: approvedCount,
+                      label: 'Aprobados',
+                      color: '#81C784',
+                    },
+                    {
+                      id: 1,
+                      value: failedCount,
+                      label: 'Desaprobados',
+                      color: '#F44336',
+                    },
+                  ],
+                  innerRadius: 80,
+                  outerRadius: 100,
+                  paddingAngle: 0,
+                  cornerRadius: 0,
+                  startAngle: 0,
+                  endAngle: 360,
+                },
+              ]}
+              width={200}
+              height={200}
+            />
             <Typography sx={{ color: 'neutral.dark', fontWeight: '700', mb: '8px' }}>Resumen</Typography>
             <Box sx={{ mb: '24px' }}>
               <Typography variant="body1">
