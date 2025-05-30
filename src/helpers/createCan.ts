@@ -6,8 +6,10 @@ type Action =
   | 'markAttendance'
   | 'viewStudentResources'
   | 'viewTeacherResources'
-  | 'editTeacherResources';
-type Subject = 'Class' | 'Attendance' | 'Resources';
+  | 'editTeacherResources'
+  | 'viewStudentGrades'
+  | 'handleGradeStudent';
+type Subject = 'Class' | 'Attendance' | 'Resources' | 'Grades';
 
 export function createCan(role: Role) {
   return (action: Action, subject: Subject): boolean => {
@@ -19,6 +21,11 @@ export function createCan(role: Role) {
     if (subject === 'Attendance') {
       if (role === 'student' && action === 'viewStudentAttendance') return true;
       if ((role === 'assistant_teacher' || role === 'lead_teacher') && action === 'markAttendance') return true;
+    }
+
+    if (subject === 'Grades') {
+      if (role === 'student' && action === 'viewStudentGrades') return true;
+      if ((role === 'assistant_teacher' || role === 'lead_teacher') && action === 'handleGradeStudent') return true;
     }
 
     if (subject === 'Resources') {
