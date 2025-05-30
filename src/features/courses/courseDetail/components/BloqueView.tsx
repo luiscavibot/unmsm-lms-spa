@@ -23,6 +23,7 @@ import { BlockDetailDto } from '@/services/courses/types';
 import { createCan } from '@/helpers/createCan';
 import { role } from '@/configs/consts';
 import UploadFileDialog from '@/components/common/UploadFileDialog';
+import TeacherGradesView from '../views/TeacherGradesView';
 interface BloqueViewProps {
   selectedBlock: BlockDetailDto;
 }
@@ -71,6 +72,8 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
   const canEditResources = can('editTeacherResources', 'Resources');
   const canMarkAttendance = can('markAttendance', 'Attendance');
   const canViewStudentAttendance = can('viewStudentAttendance', 'Attendance');
+  const canViewStudentGrades = can('viewStudentGrades', 'Grades');
+  const canHandleGradeStudent = can('handleGradeStudent', 'Grades');
 
   //   lógica para verificar si existen los archivos
 
@@ -352,7 +355,8 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
         {canViewStudentAttendance && <AlumnoAsistenciaView blockId={selectedBlock.blockId} />}
       </TabPanel>
       <TabPanel value={valueTab} index={2}>
-        <AlumnoNotasView blockId={selectedBlock.blockId} />
+        {canViewStudentGrades && <AlumnoNotasView blockId={selectedBlock.blockId} />}
+        {canHandleGradeStudent && <TeacherGradesView />}
       </TabPanel>
     </Box>
   );
