@@ -2,15 +2,16 @@
 import React from 'react';
 import { Add, Delete, Edit, InfoOutlined, Save } from '@mui/icons-material';
 import { Dayjs } from 'dayjs';
-import { Link } from 'react-router-dom';
+import {
+  // useLocation,
+  Link,
+} from 'react-router-dom';
 import {
   Box,
   Button,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle,
   Divider,
   IconButton,
   OutlinedInput,
@@ -40,6 +41,7 @@ type AlumnoConNotas = {
 };
 
 const TeacherGradesView = () => {
+  //   const location = useLocation();
   const [openDialog, setOpenDialog] = React.useState(false);
   const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => setOpenDialog(false);
@@ -341,7 +343,13 @@ const TeacherGradesView = () => {
           <Button onClick={handleCloseDialog} variant="outlined" color="secondary" size="large">
             Volver al módulo
           </Button>
-          <Button component={Link} to="/notas-finales" variant="contained" size="large">
+          <Button
+            component={Link}
+            to="/courses/posgrado/course/final-grades"
+            // to={`${location.pathname}/final-grades`}
+            variant="contained"
+            size="large"
+          >
             Ver notas finales
           </Button>
         </DialogActions>
