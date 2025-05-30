@@ -8,14 +8,24 @@ type Action =
   | 'viewTeacherResources'
   | 'editTeacherResources'
   | 'viewStudentGrades'
-  | 'handleGradeStudent';
-type Subject = 'Class' | 'Attendance' | 'Resources' | 'Grades';
+  | 'handleGradeStudent'
+  | 'addMaterials'
+  | 'addWeeks';
+type Subject = 'Materials' | 'Weeks' | 'Class' | 'Attendance' | 'Resources' | 'Grades';
 
 export function createCan(role: Role) {
   return (action: Action, subject: Subject): boolean => {
     if (subject === 'Class') {
       if (role === 'student' && action === 'join') return true;
       if ((role === 'assistant_teacher' || role === 'lead_teacher') && action === 'start') return true;
+    }
+
+    if (subject === 'Materials') {
+      if ((role === 'assistant_teacher' || role === 'lead_teacher') && action === 'addMaterials') return true;
+    }
+
+    if (subject === 'Weeks') {
+      if ((role === 'assistant_teacher' || role === 'lead_teacher') && action === 'addWeeks') return true;
     }
 
     if (subject === 'Attendance') {
