@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useContext } from 'react';
 import {
   Box,
   Button,
@@ -18,17 +18,24 @@ import AlumnoAsistenciaView from '../views/AlumnoAsistenciaView';
 import DocenteAsistenciaView from '../views/DocenteAsistenciaView';
 import AlumnoNotasView from '../views/AlumnoNotasView';
 import { CheckCircleOutline, Close, ContentPaste, Videocam } from '@mui/icons-material';
-import { BlockDetailDto } from '@/services/courses/types';
+import { BlockDetailDto, BlockType } from '@/services/courses/types';
 
 import { createCan } from '@/helpers/createCan';
 import { role } from '@/configs/consts';
 import UploadFileDialog from '@/components/common/UploadFileDialog';
 import TeacherGradesView from '../views/TeacherGradesView';
+import { useAbility } from '@/hooks/useAbility';
 interface BloqueViewProps {
   selectedBlock: BlockDetailDto;
 }
 
 const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
+  console.log('BloqueView selectedBlock:', selectedBlock);
+  const blockType = selectedBlock.blockType;
+  const ability = useAbility();
+  const canViewTheoGenResEditBtns = ability.can('view', 'theoGenResEditBtns');
+  const canViewPracGenResEditBtns = ability.can('view', 'pracGenResEditBtns');
+
   const [valueTab, setValueTab] = React.useState(0);
   const [open, setOpen] = React.useState(false);
   const [openAddFileDialog, setOpenAddFileDialog] = React.useState(false);
@@ -67,8 +74,6 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
 
   const can = createCan(role);
 
-  const canViewAsStudent = can('viewStudentResources', 'Resources');
-  const canViewAsTeacher = can('viewTeacherResources', 'Resources');
   const canEditResources = can('editTeacherResources', 'Resources');
   const canMarkAttendance = can('markAttendance', 'Attendance');
   const canViewStudentAttendance = can('viewStudentAttendance', 'Attendance');
@@ -79,6 +84,13 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
 
   const existsSyllabus = selectedBlock.syllabus && selectedBlock.syllabus.downloadUrl.trim() !== '';
   const existsCV = selectedBlock.cv && selectedBlock.cv.downloadUrl.trim() !== '';
+
+  const canViewGenResEditBtns =
+    blockType === BlockType.THEORY
+      ? canViewTheoGenResEditBtns
+      : blockType === BlockType.PRACTICE
+      ? canViewPracGenResEditBtns
+      : false;
 
   return (
     <Box sx={{ px: '24px', py: '32px', bgcolor: 'neutral.lightest', borderRadius: '8px' }}>
@@ -143,7 +155,7 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
               </Typography>
             </Box>
           )}
-          {canViewAsStudent && (
+          {!canViewGenResEditBtns && (
             <Box sx={{ display: 'flex', gap: '10px' }}>
               {existsSyllabus && (
                 <Button
@@ -171,7 +183,7 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
               )}
             </Box>
           )}
-          {canViewAsTeacher && (
+          {canViewGenResEditBtns && (
             <Box sx={{ display: 'flex', gap: '10px' }}>
               {existsSyllabus ? (
                 <Button

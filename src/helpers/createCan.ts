@@ -8,11 +8,11 @@ export type Action =
   | 'viewTeacherResources'
   | 'editTeacherResources'
   | 'viewStudentGrades'
+  | 'viewFinalGrades'
   | 'handleGradeStudent'
   | 'addMaterials'
   | 'addWeeks';
 type Subject = 'Materials' | 'Weeks' | 'Class' | 'Attendance' | 'Resources' | 'Grades';
-
 
 export function createCan(role: Role) {
   return (action: Action, subject: Subject): boolean => {

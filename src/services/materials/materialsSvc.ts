@@ -1,4 +1,3 @@
-// src/services/materials/materialsApi.ts
 import { baseApi } from '../baseApi';
 import lab from '@/services/apiLabels';
 import { WeekWithMaterialsDto } from './types';

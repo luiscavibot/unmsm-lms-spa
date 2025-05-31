@@ -1,5 +1,9 @@
-export const actions = ['view', 'read', 'create', 'update', 'delete', 'manage'] as const;
+export const actions = ['view', 'create', 'update', 'delete', 'manage'] as const;
 export type Actions = (typeof actions)[number];
 
-export const subjects = ['studentResources', 'teacherResources', 'courseCardTeacherName', 'all'] as const;
+/*theoGenResEditBtns => theoryGeneralResourceEditButtons
+  pracGenResEditBtns => practiceGeneralResourceEditButtons
+*/
+
+export const subjects = ['theoGenResEditBtns', 'pracGenResEditBtns', 'courseCardTeacherName', 'all'] as const;
 export type Subjects = (typeof subjects)[number];

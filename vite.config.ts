@@ -35,6 +35,7 @@ export default defineConfig({
       '@/abilities': '/src/abilities',
       '@/roles': '/src/roles',
       '@/contexts': '/src/contexts',
+      '@abilities': '/src/abilities',
     },
   },
 });
