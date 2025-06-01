@@ -119,7 +119,7 @@ const LoginForm = () => {
 
       <Divider sx={{ my: 2 }}>o</Divider>
 
-      <Button
+      {/* <Button
         sx={{
           bgcolor: 'white',
           color: '#202124',
@@ -135,7 +135,7 @@ const LoginForm = () => {
         disabled
       >
         Inicia sesión con Google
-      </Button>
+      </Button> */}
 
       <Typography variant="body2" align="center" sx={{ mt: 2 }}>
         ¿Necesitas una cuenta?{' '}

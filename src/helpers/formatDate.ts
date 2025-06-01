@@ -11,5 +11,9 @@ export function formatDate(dateString: string): string {
 }
 
 export function formatFullDateInPeru(dateString: string): string {
-  return dayjs(dateString).tz('America/Lima').locale('es').format('DD [de] MMMM [de] YYYY, HH:mm:ss');
+  const date = dayjs(dateString);
+  if (!date.isValid()) {
+    return 'Verificando fecha de carga...';
+  }
+  return date.tz('America/Lima').locale('es').format('DD [de] MMMM [de] YYYY, HH:mm:ss');
 }
