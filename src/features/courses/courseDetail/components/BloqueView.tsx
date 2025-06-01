@@ -28,7 +28,7 @@ import { useAbility } from '@/hooks/useAbility';
 import { showToast } from '@/helpers/notifier';
 import { formatFullDateInPeru } from '@/helpers/formatDate';
 
-import { useUploadUserResumeMutation } from '@/services/users';
+import { useUploadUserResumeMutation, useDeleteUserResumeMutation } from '@/services/users';
 
 interface BloqueViewProps {
   selectedBlock: BlockDetailDto;
@@ -36,6 +36,7 @@ interface BloqueViewProps {
 
 const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
   const [uploadUserResume, { isLoading: isUploadingResume, error: resumeUploadError }] = useUploadUserResumeMutation();
+  const [deleteUserResume, { isLoading: isDeletingResume, error: deleteResumeError }] = useDeleteUserResumeMutation();
 
   const blockType = selectedBlock.blockType;
   const ability = useAbility();
@@ -85,6 +86,15 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
       showToast('Error subiendo archivo', 'error');
     } finally {
       handleCloseAddFileDialog();
+    }
+  };
+  const handleDeleteResume = async () => {
+    try {
+      await deleteUserResume({ blockId: selectedBlock.blockId }).unwrap();
+      showToast('CV eliminado correctamente', 'success');
+    } catch (err) {
+      console.error('Error borrando CV:', err);
+      showToast('Error al eliminar CV', 'error');
     }
   };
 
@@ -271,12 +281,24 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
                                 variant="text"
                                 color="secondary"
                                 onClick={() => handleOpenAddFileDialog('cv')}
+                                disabled={isDeletingResume}
                               >
                                 Editar
                               </Button>
-                              <Button size="medium" variant="outlined" color="secondary">
-                                Eliminar
+                              <Button
+                                size="medium"
+                                variant="outlined"
+                                color="error"
+                                onClick={handleDeleteResume}
+                                disabled={isDeletingResume}
+                              >
+                                {isDeletingResume ? 'Eliminando…' : 'Eliminar'}
                               </Button>
+                              {deleteResumeError && (
+                                <Typography variant="caption" color="error" sx={{ mt: '4px' }}>
+                                  No se pudo eliminar el CV. Intenta de nuevo.
+                                </Typography>
+                              )}
                             </>
                           ) : (
                             <Button

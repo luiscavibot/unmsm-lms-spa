@@ -18,13 +18,3 @@ export interface UserDto {
   enabled: boolean;
   status: UserStatusType;
 }
-export interface ResumeResponseDto {
-  id: string;
-  name: string;
-  email: string;
-  imgUrl: string;
-  resumeUrl: string;
-  resumeUpdateDate: string;
-  enabled: boolean;
-  status: UserStatusType;
-}
