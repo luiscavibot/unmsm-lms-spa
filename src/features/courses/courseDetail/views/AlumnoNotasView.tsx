@@ -15,7 +15,6 @@ interface AlumnoNotasViewProps {
 
 const AlumnoNotasView: FC<AlumnoNotasViewProps> = ({ blockId }) => {
   const { data, isLoading, isFetching, error } = useGetStudentGradesByBlockIdQuery({ blockId });
-  console.log('data', data);
 
   if (isLoading || isFetching) {
     return (

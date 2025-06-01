@@ -27,7 +27,6 @@ interface AlumnoAsistenciaViewProps {
 
 const AlumnoAsistenciaView: FC<AlumnoAsistenciaViewProps> = ({ blockId }) => {
   const { data, isLoading, isFetching, error } = useGetAttendanceByBlockIdQuery({ blockId });
-  console.log('data', data);
   const [value, setValue] = useState<Dayjs | null>(null);
   const [filterDate, setFilterDate] = useState<string | null>(null);
 

@@ -44,6 +44,7 @@ export interface ICoursesByProgramTypeResp {
 export interface FileInfoDto {
   fileName: string;
   downloadUrl: string;
+  updateDate: string;
 }
 
 export interface BlockScheduleDto {

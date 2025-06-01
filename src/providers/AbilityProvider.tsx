@@ -30,8 +30,6 @@ const AbilityProvider: FC<AbilityProviderProps> = ({ children }) => {
     return roles;
   }, [roles, blockAssignment]);
 
-  console.log('Combined Roles:', combinedRoles);
-
   const ability = useMemo(() => defineAbilitiesFor(combinedRoles), [combinedRoles]);
 
   return <abilityContext.Provider value={ability}>{children}</abilityContext.Provider>;

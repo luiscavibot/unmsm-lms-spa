@@ -80,7 +80,6 @@ const MaterialesView: FC<MaterialesViewProps> = ({ blockId }) => {
 
   const handleAddFile = () => {
     if (!selectedFile || !fileTarget) return;
-    console.log(`Subiendo archivo para ${fileTarget}`, selectedFile);
     // Agregar lógica para subir el archivo al servidor
     handleCloseAddFileDialog();
     handleOpenSuccessDialog();

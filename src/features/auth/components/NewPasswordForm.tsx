@@ -13,13 +13,6 @@ export const NewPasswordForm: React.FC = () => {
   const navigate = useNavigate();
   const { tempUsername, tempSession, status, error } = useAppSelector((s) => s.auth);
 
-  // console.log({
-  //   tempUsername,
-  //   tempSession,
-  //   status,
-  //   error,
-  // });
-
   const loading = status === 'loading';
   const [newPass, setNewPass] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -36,7 +29,8 @@ export const NewPasswordForm: React.FC = () => {
     }
   }, [dispatch, navigate, tempSession, tempUsername]);
 
-  const sessionExpired = error?.toLowerCase().includes('invalid session') || error?.toLowerCase().includes('session is expired');
+  const sessionExpired =
+    error?.toLowerCase().includes('invalid session') || error?.toLowerCase().includes('session is expired');
 
   const handleRestart = () => {
     dispatch(logoutAsync());
@@ -79,7 +73,9 @@ export const NewPasswordForm: React.FC = () => {
 
         {error && !sessionExpired && <Alert severity="error">{error}</Alert>}
         {sessionExpired && (
-          <Alert severity="warning">Tu sesión para cambiar la contraseña ha expirado. Vuelve a iniciar sesión para solicitar un nuevo código.</Alert>
+          <Alert severity="warning">
+            Tu sesión para cambiar la contraseña ha expirado. Vuelve a iniciar sesión para solicitar un nuevo código.
+          </Alert>
         )}
 
         {sessionExpired ? (
@@ -100,7 +96,11 @@ export const NewPasswordForm: React.FC = () => {
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton aria-label={show1 ? 'Ocultar contraseña' : 'Mostrar contraseña'} onClick={() => setShow1((v) => !v)} edge="end">
+                    <IconButton
+                      aria-label={show1 ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                      onClick={() => setShow1((v) => !v)}
+                      edge="end"
+                    >
                       {show1 ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
@@ -122,7 +122,11 @@ export const NewPasswordForm: React.FC = () => {
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton aria-label={show2 ? 'Ocultar contraseña' : 'Mostrar contraseña'} onClick={() => setShow2((v) => !v)} edge="end">
+                    <IconButton
+                      aria-label={show2 ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                      onClick={() => setShow2((v) => !v)}
+                      edge="end"
+                    >
                       {show2 ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
