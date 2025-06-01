@@ -1,4 +1,5 @@
-import React, { FC } from 'react';
+// BloqueView.tsx
+import React, { FC, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -10,7 +11,9 @@ import {
   List,
   ListItem,
   Typography,
+  // CircularProgress,
 } from '@mui/material';
+import { CheckCircleOutline, Close, ContentPaste, Videocam } from '@mui/icons-material';
 import CoursesDetailTabs from './CoursesDetailTabs';
 import TabPanel from '../../components/TabPanel';
 import MaterialesView from '../views/MaterialesView';
@@ -19,7 +22,6 @@ import DocenteAsistenciaView from '../views/DocenteAsistenciaView';
 import AlumnoNotasView from '../views/AlumnoNotasView';
 import TeacherGradesView from '../views/TeacherGradesView';
 import UploadFileDialog from '@/components/common/UploadFileDialog';
-import { CheckCircleOutline, Close, ContentPaste, Videocam } from '@mui/icons-material';
 import { BlockDetailDto, BlockType } from '@/services/courses/types';
 
 import { createCan } from '@/helpers/createCan';
@@ -29,14 +31,22 @@ import { showToast } from '@/helpers/notifier';
 import { formatFullDateInPeru } from '@/helpers/formatDate';
 
 import { useUploadUserResumeMutation, useDeleteUserResumeMutation } from '@/services/users';
+import { useUploadBlockSyllabusMutation, useDeleteBlockSyllabusMutation } from '@/services/blocks/blocksSvc';
 
 interface BloqueViewProps {
   selectedBlock: BlockDetailDto;
 }
 
 const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
+  // Resume mutations
   const [uploadUserResume, { isLoading: isUploadingResume, error: resumeUploadError }] = useUploadUserResumeMutation();
   const [deleteUserResume, { isLoading: isDeletingResume, error: deleteResumeError }] = useDeleteUserResumeMutation();
+
+  // Syllabus mutations
+  const [uploadBlockSyllabus, { isLoading: isUploadingSyllabus, error: uploadSyllabusError }] =
+    useUploadBlockSyllabusMutation();
+  const [deleteBlockSyllabus, { isLoading: isDeletingSyllabus, error: deleteSyllabusError }] =
+    useDeleteBlockSyllabusMutation();
 
   const blockType = selectedBlock.blockType;
   const ability = useAbility();
@@ -44,11 +54,8 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
   const canViewPracGenResEditBtns = ability.can('view', 'pracGenResEditBtns');
 
   const [valueTab, setValueTab] = React.useState(0);
-
   const [open, setOpen] = React.useState(false);
-
   const [openAddFileDialog, setOpenAddFileDialog] = React.useState(false);
-
   const [fileTarget, setFileTarget] = React.useState<'syllabus' | 'cv' | null>(null);
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
 
@@ -70,9 +77,7 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
   };
 
   const handleAddFile = async () => {
-    if (!selectedFile || !fileTarget) {
-      return;
-    }
+    if (!selectedFile || !fileTarget) return;
 
     try {
       if (fileTarget === 'cv') {
@@ -81,20 +86,35 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
           blockId: selectedBlock.blockId,
         }).unwrap();
         showToast('CV subido correctamente', 'success');
+      } else if (fileTarget === 'syllabus') {
+        await uploadBlockSyllabus({
+          file: selectedFile,
+          blockId: selectedBlock.blockId,
+        }).unwrap();
+        showToast('Syllabus subido correctamente', 'success');
       }
     } catch (err) {
-      showToast('Error subiendo archivo', 'error');
+      showToast(fileTarget === 'cv' ? 'Error subiendo CV' : 'Error subiendo Syllabus', 'error');
     } finally {
       handleCloseAddFileDialog();
     }
   };
+
   const handleDeleteResume = async () => {
     try {
       await deleteUserResume({ blockId: selectedBlock.blockId }).unwrap();
       showToast('CV eliminado correctamente', 'success');
-    } catch (err) {
-      console.error('Error borrando CV:', err);
+    } catch {
       showToast('Error al eliminar CV', 'error');
+    }
+  };
+
+  const handleDeleteSyllabus = async () => {
+    try {
+      await deleteBlockSyllabus({ blockId: selectedBlock.blockId }).unwrap();
+      showToast('Syllabus eliminado correctamente', 'success');
+    } catch {
+      showToast('Error al eliminar Syllabus', 'error');
     }
   };
 
@@ -117,6 +137,25 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
     }
   };
 
+  // Mostrar toast si hay error de mutaciones
+  useEffect(() => {
+    if (uploadSyllabusError) {
+      showToast('Error al subir Syllabus', 'error');
+    }
+  }, [uploadSyllabusError]);
+
+  useEffect(() => {
+    if (deleteSyllabusError) {
+      showToast('Error al eliminar Syllabus', 'error');
+    }
+  }, [deleteSyllabusError]);
+
+  useEffect(() => {
+    if (deleteResumeError) {
+      showToast('Error al eliminar CV', 'error');
+    }
+  }, [deleteResumeError]);
+
   return (
     <Box sx={{ px: '24px', py: '32px', bgcolor: 'neutral.lightest', borderRadius: '8px' }}>
       <Typography variant="h6" sx={{ mb: '24px', fontSize: '20px', fontWeight: '700', color: 'neutral.dark' }}>
@@ -125,7 +164,62 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
 
       <Box sx={{ mb: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {/* … (datos de Horario, Aula, Docente, etc.) … */}
+          {/* Datos de Horario, Aula, Docente */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'baseline',
+              gap: { xs: '16px', md: '96px' },
+              justifyContent: 'space-between',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+              <Typography variant="body2" sx={{ fontSize: '14px', fontWeight: '600', color: 'neutral.dark' }}>
+                Horario:
+              </Typography>
+              <Box component="ul" sx={{ pl: 2, my: 0, listStyle: 'disc', color: 'neutral.main' }}>
+                {selectedBlock.schedule.map((item) => (
+                  <Box component="li" key={item} sx={{ fontSize: '14px' }}>
+                    {item}
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+            <Box>
+              <Typography
+                component="span"
+                variant="body2"
+                sx={{ fontSize: '14px', fontWeight: '600', color: 'neutral.dark' }}
+              >
+                Aula:
+              </Typography>{' '}
+              <Typography
+                component="span"
+                variant="body2"
+                sx={{ fontSize: '14px', fontWeight: '400', color: 'neutral.main' }}
+              >
+                {selectedBlock.aula || 'No asignada'}
+              </Typography>
+            </Box>
+          </Box>
+          {selectedBlock.teacher && (
+            <Box>
+              <Typography
+                component="span"
+                variant="body2"
+                sx={{ fontSize: '14px', fontWeight: '600', color: 'neutral.dark' }}
+              >
+                Docente:
+              </Typography>{' '}
+              <Typography
+                component="span"
+                variant="body2"
+                sx={{ fontSize: '14px', fontWeight: '400', color: 'neutral.main' }}
+              >
+                {selectedBlock.teacher}
+              </Typography>
+            </Box>
+          )}
 
           {!canViewGenResEditBtns() && (
             <Box sx={{ display: 'flex', gap: '10px' }}>
@@ -158,6 +252,7 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
 
           {canViewGenResEditBtns() && (
             <Box sx={{ display: 'flex', gap: '10px' }}>
+              {/* Syllabus botón */}
               {existsSyllabus ? (
                 <Button
                   size="small"
@@ -175,6 +270,7 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
                 </Button>
               )}
 
+              {/* CV botón */}
               {existsCV ? (
                 <Button
                   size="small"
@@ -192,18 +288,18 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
                 </Button>
               )}
 
-              {/* ⇨ Ahora “Editar archivos” abre el diálogo padre (no el hijo) */}
+              {/* “Editar archivos” abre diálogo padre */}
               <Button
                 size="small"
                 variant="text"
                 color="secondary"
                 sx={{ textDecoration: 'underline', '&:hover': { textDecoration: 'underline' } }}
-                onClick={handleOpen} // <-- aquí abrimos el diálogo padre “Archivos”
+                onClick={handleOpen}
               >
                 Editar archivos
               </Button>
 
-              {/* —————— DIÁLOGO PADRE “Archivos” —————— */}
+              {/* Diálogo padre “Archivos” */}
               <Dialog onClose={handleClose} open={open} sx={{ '& .MuiDialog-paper': { borderRadius: '24px' } }}>
                 <DialogTitle sx={{ m: 0, p: '16px 24px', fontSize: '20px', fontWeight: '700' }} color="secondary.dark">
                   Archivos
@@ -212,11 +308,7 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
                   aria-label="close"
                   color="inherit"
                   size="medium"
-                  sx={{
-                    position: 'absolute',
-                    right: 8,
-                    top: 8,
-                  }}
+                  sx={{ position: 'absolute', right: 8, top: 8 }}
                   onClick={handleClose}
                 >
                   <Close fontSize="inherit" />
@@ -224,6 +316,7 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
 
                 <DialogContent sx={{ p: '0px 24px 24px' }}>
                   <List disablePadding>
+                    {/* Syllabus item */}
                     <ListItem sx={{ py: '16px' }} disablePadding>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', gap: '24px' }}>
                         <Box sx={{ minWidth: { md: '300px' } }}>
@@ -233,7 +326,7 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
                             {formatFullDateInPeru(selectedBlock.syllabus.updateDate)}
                           </Typography>
                         </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
                           {existsSyllabus ? (
                             <>
                               <Button
@@ -241,12 +334,24 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
                                 variant="text"
                                 color="secondary"
                                 onClick={() => handleOpenAddFileDialog('syllabus')}
+                                disabled={isDeletingSyllabus}
                               >
                                 Editar
                               </Button>
-                              <Button size="medium" variant="outlined" color="secondary">
-                                Eliminar
+                              <Button
+                                size="medium"
+                                variant="outlined"
+                                color="error"
+                                onClick={handleDeleteSyllabus}
+                                disabled={isDeletingSyllabus}
+                              >
+                                {isDeletingSyllabus ? 'Eliminando…' : 'Eliminar'}
                               </Button>
+                              {deleteSyllabusError && (
+                                <Typography variant="caption" color="error" sx={{ mt: '4px' }}>
+                                  No se pudo eliminar el Syllabus. Intenta de nuevo.
+                                </Typography>
+                              )}
                             </>
                           ) : (
                             <Button
@@ -254,6 +359,7 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
                               variant="outlined"
                               color="secondary"
                               onClick={() => handleOpenAddFileDialog('syllabus')}
+                              disabled={isDeletingSyllabus}
                             >
                               Agregar
                             </Button>
@@ -262,6 +368,8 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
                       </Box>
                     </ListItem>
                     <Divider />
+
+                    {/* CV item */}
                     <ListItem sx={{ py: '16px' }} disablePadding>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', gap: '24px' }}>
                         <Box sx={{ minWidth: { md: '300px' } }}>
@@ -273,7 +381,7 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
                             </Typography>
                           )}
                         </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
                           {existsCV ? (
                             <>
                               <Button
@@ -306,6 +414,7 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
                               variant="outlined"
                               color="secondary"
                               onClick={() => handleOpenAddFileDialog('cv')}
+                              disabled={isDeletingResume}
                             >
                               Agregar
                             </Button>
@@ -318,15 +427,15 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
                 </DialogContent>
               </Dialog>
 
-              {/* —————— DIÁLOGO HIJO “Subir archivo” —————— */}
+              {/* Diálogo hijo “Subir archivo” */}
               <UploadFileDialog
                 open={openAddFileDialog}
                 onClose={handleCloseAddFileDialog}
                 onUpload={handleAddFile}
                 selectedFile={selectedFile}
                 onFileSelect={(file) => setSelectedFile(file)}
-                isUploading={isUploadingResume}
-                uploadError={resumeUploadError}
+                isUploading={fileTarget === 'cv' ? isUploadingResume : isUploadingSyllabus}
+                uploadError={fileTarget === 'cv' ? resumeUploadError : uploadSyllabusError}
               />
             </Box>
           )}

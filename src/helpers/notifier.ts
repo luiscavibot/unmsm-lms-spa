@@ -11,6 +11,10 @@ export const showToast = (text: string, type: TypeOptions = 'success') => {
     progress: undefined,
     theme: 'colored',
     transition: Bounce,
+    style: {
+      background: type === 'success' ? 'rgb(34, 134, 101)' : type === 'error' ? '#d32f2f' : undefined,
+      color: '#ffffff',
+    },
   };
 
   (toast[type as keyof typeof toast] as Function)(text, options);
