@@ -13,7 +13,7 @@ export interface MaterialResponseDto {
   uploadedById: string;
   uploadedByName: string;
   materialUrl: string;
-  materialName: string;
+  fileExtension: string;
 }
 
 export interface WeekWithMaterialsDto {

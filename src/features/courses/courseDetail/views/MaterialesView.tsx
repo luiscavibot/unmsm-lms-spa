@@ -33,6 +33,7 @@ import { BlockType } from '@/services/courses/types';
 import { useAppSelector } from '@/store/hooks';
 import { UserRole } from '@/roles';
 import { showToast } from '@/helpers/notifier';
+import InfoItem from '../components/InfoItem';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -156,7 +157,7 @@ const MaterialesView: FC<MaterialesViewProps> = ({ blockId, blockType }) => {
   const { user } = useAppSelector((state) => state.auth);
   const roles = user?.['cognito:groups'] || [];
   useEffect(() => {
-    if (!user?.['custom:role']) return;
+    if (roles.length === 0) return;
     if (weeks && weeks.length > 0 && !roles.includes(UserRole.Teacher)) {
       setExpanded(weeks[0].id);
     }
@@ -269,9 +270,24 @@ const MaterialesView: FC<MaterialesViewProps> = ({ blockId, blockType }) => {
                   }}
                 >
                   <Box>
-                    <Typography sx={{ color: 'neutral.dark', lineHeight: 1, mb: '10px' }}>
-                      {getTypeLabel(mat.materialType)} | {mat.materialName.split('.').pop()?.toUpperCase()}
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px', mb: '8px' }}>
+                      <Typography sx={{ color: 'neutral.dark' }}>
+                        {getTypeLabel(mat.materialType)} {mat.fileExtension ? `| ${mat.fileExtension}` : ''}
+                      </Typography>
+                      {false && (
+                        <Box
+                          sx={{
+                            borderRadius: '4px',
+                            px: 1,
+                            borderColor: 'secondary.light',
+                            borderWidth: '1px',
+                            borderStyle: 'solid',
+                          }}
+                        >
+                          <Typography sx={{ color: 'neutral.main', fontSize: '12px' }}>Recién agregado</Typography>
+                        </Box>
+                      )}
+                    </Box>
                     <Typography sx={{ color: 'neutral.dark', lineHeight: 1, mb: '10px' }}>{mat.name}</Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <Typography sx={{ color: 'neutral.main', lineHeight: 1, fontSize: '14px' }}>

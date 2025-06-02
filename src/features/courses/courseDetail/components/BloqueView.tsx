@@ -52,6 +52,8 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
   const ability = useAbility();
   const canViewTheoGenResEditBtns = ability.can('view', 'theoGenResEditBtns');
   const canViewPracGenResEditBtns = ability.can('view', 'pracGenResEditBtns');
+  const canViewTheoClassAttCtrl = ability.can('view', 'theoClassAttCtrl');
+  const canViewPracClassAttCtrl = ability.can('view', 'pracClassAttCtrl');
 
   const [valueTab, setValueTab] = React.useState(0);
   const [open, setOpen] = React.useState(false);
@@ -119,8 +121,6 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
   };
 
   const can = createCan(role);
-  const canMarkAttendance = can('markAttendance', 'Attendance');
-  const canViewStudentAttendance = can('viewStudentAttendance', 'Attendance');
   const canViewStudentGrades = can('viewStudentGrades', 'Grades');
   const canHandleGradeStudent = can('handleGradeStudent', 'Grades');
 
@@ -132,6 +132,16 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
       return canViewTheoGenResEditBtns;
     } else if (blockType === BlockType.PRACTICE) {
       return canViewPracGenResEditBtns;
+    } else {
+      return false;
+    }
+  };
+
+  const canViewClassAttCtrl = (): boolean => {
+    if (blockType === BlockType.THEORY) {
+      return canViewTheoClassAttCtrl;
+    } else if (blockType === BlockType.PRACTICE) {
+      return canViewPracClassAttCtrl;
     } else {
       return false;
     }
@@ -458,8 +468,11 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
         <MaterialesView blockId={selectedBlock.blockId} blockType={blockType} />
       </TabPanel>
       <TabPanel value={valueTab} index={1}>
-        {canMarkAttendance && <DocenteAsistenciaView blockId={selectedBlock.blockId} />}
-        {canViewStudentAttendance && <AlumnoAsistenciaView blockId={selectedBlock.blockId} />}
+        {canViewClassAttCtrl() ? (
+          <DocenteAsistenciaView blockId={selectedBlock.blockId} />
+        ) : (
+          <AlumnoAsistenciaView blockId={selectedBlock.blockId} />
+        )}
       </TabPanel>
       <TabPanel value={valueTab} index={2}>
         {canViewStudentGrades && <AlumnoNotasView blockId={selectedBlock.blockId} />}

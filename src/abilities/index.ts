@@ -12,14 +12,19 @@ export function defineAbilitiesFor(roles: Role[]): AppAbility {
     can('view', 'pracGenResEditBtns');
     can('view', 'theoMatAddBtn');
     can('view', 'pracMatAddBtn');
+    can('view', 'theoClassAttCtrl');
+    can('view', 'pracClassAttCtrl');
   } else if (roles.includes(UserRole.Teacher) && roles.includes(BlockRole.Collaborator)) {
     can('view', 'pracGenResEditBtns');
     can('view', 'pracMatAddBtn');
+    can('view', 'pracClassAttCtrl');
   } else if (roles.includes(UserRole.Teacher)) {
     cannot('view', 'theoGenResEditBtns');
     cannot('view', 'pracGenResEditBtns');
     cannot('view', 'theoMatAddBtn');
     cannot('view', 'pracMatAddBtn');
+    cannot('view', 'theoClassAttCtrl');
+    cannot('view', 'pracClassAttCtrl');
   }
 
   if (roles.includes(UserRole.Admin)) {
