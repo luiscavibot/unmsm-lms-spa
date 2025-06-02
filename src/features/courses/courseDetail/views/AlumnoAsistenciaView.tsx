@@ -1,5 +1,6 @@
-import React, { FC, useState, useEffect } from 'react';
-import { Dayjs } from 'dayjs';
+// import React, { FC, useState, useEffect } from 'react';
+import React from 'react';
+// import { Dayjs } from 'dayjs';
 // import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import {
@@ -15,7 +16,9 @@ import {
   Typography,
 } from '@mui/material';
 import { useGetAttendanceByBlockIdQuery } from '@/services/attendance/attendanceSvc';
-import { AttendanceStatus, WeekAttendanceDto } from '@/services/attendance/types';
+// import { AttendanceStatus, WeekAttendanceDto } from '@/services/attendance/types';
+import { FC } from 'react';
+import { AttendanceStatus } from '@/services/attendance/types';
 
 const GreenBox = () => <Box sx={{ bgcolor: '#A5D6A7', width: 24, height: 24, borderRadius: 1 }} />;
 const RedBox = () => <Box sx={{ bgcolor: '#EF9A9A', width: 24, height: 24, borderRadius: 1 }} />;
@@ -27,16 +30,17 @@ interface AlumnoAsistenciaViewProps {
 
 const AlumnoAsistenciaView: FC<AlumnoAsistenciaViewProps> = ({ blockId }) => {
   const { data, isLoading, isFetching, error } = useGetAttendanceByBlockIdQuery({ blockId });
-  const [value, setValue] = useState<Dayjs | null>(null);
-  const [filterDate, setFilterDate] = useState<string | null>(null);
+  console.log('data', data);
+  // const [value, setValue] = useState<Dayjs | null>(null);
+  // const [filterDate, setFilterDate] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (value) {
-      setFilterDate(value.format('DD/MM/YYYY'));
-    } else {
-      setFilterDate(null);
-    }
-  }, [value]);
+  // useEffect(() => {
+  //   if (value) {
+  //     setFilterDate(value.format('DD/MM/YYYY'));
+  //   } else {
+  //     setFilterDate(null);
+  //   }
+  // }, [value]);
 
   if (isLoading || isFetching) {
     return (
@@ -48,15 +52,15 @@ const AlumnoAsistenciaView: FC<AlumnoAsistenciaViewProps> = ({ blockId }) => {
   if (error || !data) {
     return <Alert severity="error">Error al cargar asistencias.</Alert>;
   }
-
-  const weeks: WeekAttendanceDto[] = filterDate
-    ? data.weeks
-        .map((week) => ({
-          ...week,
-          attendances: week.attendances.filter((att) => att.date === filterDate),
-        }))
-        .filter((week) => week.attendances.length > 0)
-    : data.weeks;
+  const weeks = data.weeks;
+  // const weeks: WeekAttendanceDto[] = filterDate
+  //   ? data.weeks
+  //       .map((week) => ({
+  //         ...week,
+  //         attendances: week.attendances.filter((att) => att.date === filterDate),
+  //       }))
+  //       .filter((week) => week.attendances.length > 0)
+  //   : data.weeks;
 
   return (
     <>
@@ -65,8 +69,8 @@ const AlumnoAsistenciaView: FC<AlumnoAsistenciaViewProps> = ({ blockId }) => {
       </Alert>
 
       <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between', mb: 4 }}>
-        {/* TODO: IMPLEMENTAR FILTRO POR FECHA
-         <DatePicker
+        {/* TODO: IMPLEMENTAR FILTRO POR FECHA */}
+        {/* <DatePicker
           label="Seleccionar fecha"
           value={value}
           onChange={(newValue) => setValue(newValue)}

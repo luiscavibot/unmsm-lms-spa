@@ -22,7 +22,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { MaterialType, WeekWithMaterialsDto } from '@/services/materials/types';
+import { MaterialLabel, MaterialType, WeekWithMaterialsDto } from '@/services/materials/types';
 import {
   useGetMaterialsByBlockIdQuery,
   useUploadMaterialMutation,
@@ -64,6 +64,15 @@ const getTypeLabel = (type: MaterialType): string => {
       return 'Enlace';
     default:
       return type;
+  }
+};
+
+const getMaterialLabelText = (label: MaterialLabel): string => {
+  switch (label) {
+    case MaterialLabel.Recent:
+      return 'Recién agregado';
+    default:
+      return label;
   }
 };
 
@@ -274,8 +283,9 @@ const MaterialesView: FC<MaterialesViewProps> = ({ blockId, blockType }) => {
                       <Typography sx={{ color: 'neutral.dark' }}>
                         {getTypeLabel(mat.materialType)} {mat.fileExtension ? `| ${mat.fileExtension}` : ''}
                       </Typography>
-                      {false && (
+                      {mat.labels.map((label, index) => (
                         <Box
+                          key={mat.materialId + index}
                           sx={{
                             borderRadius: '4px',
                             px: 1,
@@ -284,9 +294,11 @@ const MaterialesView: FC<MaterialesViewProps> = ({ blockId, blockType }) => {
                             borderStyle: 'solid',
                           }}
                         >
-                          <Typography sx={{ color: 'neutral.main', fontSize: '12px' }}>Recién agregado</Typography>
+                          <Typography sx={{ color: 'neutral.main', fontSize: '12px' }}>
+                            {getMaterialLabelText(label)}
+                          </Typography>
                         </Box>
-                      )}
+                      ))}
                     </Box>
                     <Typography sx={{ color: 'neutral.dark', lineHeight: 1, mb: '10px' }}>{mat.name}</Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

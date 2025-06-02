@@ -10,6 +10,9 @@ export type Actions = (typeof actions)[number];
   ----------------------------
   theoClassAttCtrl => classAttendanceController
   pracClassAttCtrl => practiceAttendanceController
+  ----------------------------
+  theoCourseNotesCtrl => theoryCourseNotesController
+  pracCourseNotesCtrl => practiceCourseNotesController
 
 */
 
@@ -21,6 +24,8 @@ export const subjects = [
   'pracMatAddBtn',
   'theoClassAttCtrl',
   'pracClassAttCtrl',
+  'theoCourseNotesCtrl',
+  'pracCourseNotesCtrl',
   'all',
 ] as const;
 export type Subjects = (typeof subjects)[number];

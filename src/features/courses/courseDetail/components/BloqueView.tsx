@@ -54,6 +54,8 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
   const canViewPracGenResEditBtns = ability.can('view', 'pracGenResEditBtns');
   const canViewTheoClassAttCtrl = ability.can('view', 'theoClassAttCtrl');
   const canViewPracClassAttCtrl = ability.can('view', 'pracClassAttCtrl');
+  const canViewTheoNotesCtrl = ability.can('view', 'theoCourseNotesCtrl');
+  const canViewPracNotesCtrl = ability.can('view', 'pracCourseNotesCtrl');
 
   const [valueTab, setValueTab] = React.useState(0);
   const [open, setOpen] = React.useState(false);
@@ -120,10 +122,6 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
     }
   };
 
-  const can = createCan(role);
-  const canViewStudentGrades = can('viewStudentGrades', 'Grades');
-  const canHandleGradeStudent = can('handleGradeStudent', 'Grades');
-
   const existsSyllabus = selectedBlock.syllabus && selectedBlock.syllabus.downloadUrl.trim() !== '';
   const existsCV = selectedBlock.cv && selectedBlock.cv.downloadUrl.trim() !== '';
 
@@ -142,6 +140,16 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
       return canViewTheoClassAttCtrl;
     } else if (blockType === BlockType.PRACTICE) {
       return canViewPracClassAttCtrl;
+    } else {
+      return false;
+    }
+  };
+
+  const canViewNotesCtrl = (): boolean => {
+    if (blockType === BlockType.THEORY) {
+      return canViewTheoNotesCtrl;
+    } else if (blockType === BlockType.PRACTICE) {
+      return canViewPracNotesCtrl;
     } else {
       return false;
     }
@@ -475,8 +483,7 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
         )}
       </TabPanel>
       <TabPanel value={valueTab} index={2}>
-        {canViewStudentGrades && <AlumnoNotasView blockId={selectedBlock.blockId} />}
-        {canHandleGradeStudent && <TeacherGradesView />}
+        {!canViewNotesCtrl() ? <AlumnoNotasView blockId={selectedBlock.blockId} /> : <TeacherGradesView />}
       </TabPanel>
     </Box>
   );

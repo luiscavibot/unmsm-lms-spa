@@ -5,6 +5,10 @@ export enum MaterialType {
   PRACTICE_FILE = 'practice_file',
 }
 
+export enum MaterialLabel {
+  Recent = 'RECENT',
+}
+
 export interface MaterialResponseDto {
   materialId: string;
   name: string;
@@ -14,6 +18,7 @@ export interface MaterialResponseDto {
   uploadedByName: string;
   materialUrl: string;
   fileExtension: string;
+  labels: MaterialLabel[];
 }
 
 export interface WeekWithMaterialsDto {

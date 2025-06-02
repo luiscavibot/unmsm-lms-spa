@@ -14,10 +14,15 @@ export function defineAbilitiesFor(roles: Role[]): AppAbility {
     can('view', 'pracMatAddBtn');
     can('view', 'theoClassAttCtrl');
     can('view', 'pracClassAttCtrl');
+    //    'theoCourseNotesCtrl',
+    // 'pracCourseNotesCtrl',
+    can('view', 'theoCourseNotesCtrl');
+    can('view', 'pracCourseNotesCtrl');
   } else if (roles.includes(UserRole.Teacher) && roles.includes(BlockRole.Collaborator)) {
     can('view', 'pracGenResEditBtns');
     can('view', 'pracMatAddBtn');
     can('view', 'pracClassAttCtrl');
+    can('view', 'pracCourseNotesCtrl');
   } else if (roles.includes(UserRole.Teacher)) {
     cannot('view', 'theoGenResEditBtns');
     cannot('view', 'pracGenResEditBtns');
@@ -25,6 +30,8 @@ export function defineAbilitiesFor(roles: Role[]): AppAbility {
     cannot('view', 'pracMatAddBtn');
     cannot('view', 'theoClassAttCtrl');
     cannot('view', 'pracClassAttCtrl');
+    cannot('view', 'theoCourseNotesCtrl');
+    cannot('view', 'pracCourseNotesCtrl');
   }
 
   if (roles.includes(UserRole.Admin)) {

@@ -1,3 +1,5 @@
+// src/components/DocenteAsistenciaView.tsx
+
 import React, { FC, useState, useEffect } from 'react';
 import { Dayjs } from 'dayjs';
 // import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -22,8 +24,16 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
-import { useGetAttendanceByBlockIdQuery } from '@/services/attendance/attendanceSvc';
 import { Search } from '@mui/icons-material';
+
+import { usePostBulkAttendanceMutation } from '@/services/attendance/attendanceSvc';
+// import { useAbility } from '@/hooks/useAbility';
+// import { BlockType } from '@/services/courses/types';
+// import { useAppSelector } from '@/store/hooks';
+// import { UserRole } from '@/roles';
+import { showToast } from '@/helpers/notifier';
+import { useGetEnrolledStudentsAttendanceQuery } from '@/services/enrollmentBlocks/enrollmentBlocksApi';
+import { AttendanceStatus } from '@/services/attendance/types';
 
 interface DocenteAsistenciaViewProps {
   blockId: string;
@@ -36,30 +46,32 @@ interface FormValues {
 type AttendanceOption = 'asistio' | 'noAsistio' | 'tardanza' | null;
 
 interface StudentAttendance {
-  id: string;
-  nombre: string;
+  id: string; // enrollmentId
+  nombre: string; // userName
   asistencia: AttendanceOption;
 }
 
-const initialStudents: StudentAttendance[] = [
-  { id: '1', nombre: 'Copa Vargas, Luciana Beatriz', asistencia: null },
-  { id: '2', nombre: 'Chávez Huerta, Carlos Eduardo', asistencia: null },
-];
-
 const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
-  const { data, isLoading, isFetching, error } = useGetAttendanceByBlockIdQuery({ blockId });
-  console.log('data', data);
+  // Fecha seleccionada (Dayjs) para filtrar
   const [value, setValue] = useState<Dayjs | null>(null);
+  // filterDate en YYYY-MM-DD
   const [filterDate, setFilterDate] = useState<string | null>(null);
-  const [students, setStudents] = useState<StudentAttendance[]>(initialStudents);
-  const [isSaving, setIsSaving] = useState(false);
+
+  // Hook para buscar estudiantes + asistencia
+  const { data, isLoading, isFetching, error } = useGetEnrolledStudentsAttendanceQuery({
+    blockId,
+    date: filterDate || undefined,
+  });
+
+  // Hook para guardar asistencia masiva
+  const [postBulkAttendance, { isLoading: isSubmitting }] = usePostBulkAttendanceMutation();
+
+  // Estado local de estudiantes, mapeados desde la respuesta
+  const [students, setStudents] = useState<StudentAttendance[]>([]);
   const [isSaved, setIsSaved] = useState(false);
 
-  const canSave = students.every((s) => s.asistencia !== null) && !isSaving;
-
-  const { control, watch } = useForm<FormValues>({
-    defaultValues: { search: '' },
-  });
+  // control para el campo de búsqueda
+  const { control, watch } = useForm<FormValues>({ defaultValues: { search: '' } });
   const { search } = watch();
   const [debouncedSearch, setDebouncedSearch] = useState(search);
 
@@ -68,26 +80,91 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
     return () => clearTimeout(handler);
   }, [search]);
 
+  // Cada vez que cambia value (Dayjs), actualizamos filterDate en formato YYYY-MM-DD
   useEffect(() => {
     if (value) {
-      setFilterDate(value.format('DD/MM/YYYY'));
+      setFilterDate(value.format('YYYY-MM-DD'));
     } else {
       setFilterDate(null);
     }
   }, [value]);
 
+  // Cuando llega data nueva, la mapeamos a StudentAttendance[]
+  useEffect(() => {
+    if (!data) {
+      setStudents([]);
+      return;
+    }
+
+    const mapped: StudentAttendance[] = data.students.map((s) => {
+      let opcion: AttendanceOption = null;
+      if (s.attendanceStatus === AttendanceStatus.PRESENT) opcion = 'asistio';
+      else if (s.attendanceStatus === AttendanceStatus.ABSENT) opcion = 'noAsistio';
+      else if (s.attendanceStatus === AttendanceStatus.LATE) opcion = 'tardanza';
+
+      return {
+        id: s.enrollmentId,
+        nombre: s.userName,
+        asistencia: opcion,
+      };
+    });
+
+    setStudents(mapped);
+    // Reset save flag whenever data changes
+    setIsSaved(false);
+  }, [data]);
+
+  // Filtrar estudiantes por debouncedSearch
+  const filteredStudents = students.filter((s) => s.nombre.toLowerCase().includes(debouncedSearch.toLowerCase()));
+
+  // Validación para habilitar "Guardar"
+  const canSave =
+    filteredStudents.length > 0 &&
+    filteredStudents.every((s) => s.asistencia !== null) &&
+    !isSubmitting &&
+    !!data?.classSessionId;
+
   const handleAttendanceChange = (id: string, option: AttendanceOption) => {
     setStudents((prev) => prev.map((student) => (student.id === id ? { ...student, asistencia: option } : student)));
   };
 
-  const handleSave = () => {
-    setIsSaving(true);
-    // Aquí agregar lógica de guardado
-    setTimeout(() => {
-      console.log('Guardado:', students);
-      setIsSaving(false);
+  const handleSave = async () => {
+    if (!canSave || !data?.classSessionId) return;
+
+    // Construir payload para POST /attendance/bulk
+    const attendanceRecords = students.map((s) => {
+      let status: AttendanceStatus;
+      switch (s.asistencia) {
+        case 'asistio':
+          status = AttendanceStatus.PRESENT;
+          break;
+        case 'noAsistio':
+          status = AttendanceStatus.ABSENT;
+          break;
+        case 'tardanza':
+          status = AttendanceStatus.LATE;
+          break;
+        default:
+          status = AttendanceStatus.ABSENT; // fallback, aunque no debería ocurrir
+      }
+      return {
+        enrollmentId: s.id,
+        status,
+      };
+    });
+
+    try {
+      await postBulkAttendance({
+        classSessionId: data.classSessionId,
+        attendanceRecords,
+      }).unwrap();
+
+      showToast('Asistencia guardada correctamente', 'success');
       setIsSaved(true);
-    }, 1000);
+    } catch (err) {
+      console.error('Error guardando asistencia:', err);
+      showToast('Error al guardar la asistencia', 'error');
+    }
   };
 
   if (isLoading || isFetching) {
@@ -109,7 +186,9 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
       </Alert>
 
       <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: '24px' }}>
-        {/* <DatePicker
+        {/* Si quieres habilitar el DatePicker, descomenta y ajusta */}
+        {/*
+        <DatePicker
           label="Seleccionar fecha"
           value={value}
           onChange={(newValue) => setValue(newValue)}
@@ -120,7 +199,9 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
               onClear: () => setValue(null),
             },
           }}
-        /> */}
+        />
+        */}
+
         <FormControl variant="standard" size="medium" sx={{ m: 1, width: '309px' }}>
           <InputLabel htmlFor="search-input">Buscar</InputLabel>
           <Controller
@@ -162,7 +243,7 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {students.map((student) => (
+              {filteredStudents.map((student) => (
                 <TableRow key={student.id}>
                   <TableCell component="th" scope="row">
                     {student.nombre}
@@ -191,7 +272,7 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
           disabled={!canSave}
           sx={{ width: '116.25px', height: '42.25px' }}
         >
-          {isSaving ? <CircularProgress size={24} color="inherit" /> : 'Guardar'}
+          {isSubmitting ? <CircularProgress size={24} color="inherit" /> : 'Guardar'}
         </Button>
       </Box>
     </>

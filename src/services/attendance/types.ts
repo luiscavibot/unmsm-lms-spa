@@ -21,3 +21,23 @@ export interface AttendanceByWeekResponseDto {
   attendancePercentage: string;
   weeks: WeekAttendanceDto[];
 }
+export interface AttendanceEntity {
+  id: string;
+  classSessionId: string;
+  enrollmentId: string;
+  status: AttendanceStatus;
+  timestamp: string;
+}
+export interface BulkAttendanceResponseDto {
+  attendances: AttendanceEntity[];
+  totalProcessed: number;
+  sessionInfo: string;
+}
+export interface BulkAttendanceRecord {
+  enrollmentId: string;
+  status: AttendanceStatus;
+}
+export interface BulkAttendanceRequestDto {
+  classSessionId: string;
+  attendanceRecords: BulkAttendanceRecord[];
+}
