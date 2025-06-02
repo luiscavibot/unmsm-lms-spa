@@ -455,7 +455,7 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
 
       <CoursesDetailTabs value={valueTab} onChange={handleChange} />
       <TabPanel value={valueTab} index={0}>
-        <MaterialesView blockId={selectedBlock.blockId} />
+        <MaterialesView blockId={selectedBlock.blockId} blockType={blockType} />
       </TabPanel>
       <TabPanel value={valueTab} index={1}>
         {canMarkAttendance && <DocenteAsistenciaView blockId={selectedBlock.blockId} />}

@@ -1,3 +1,5 @@
+import { UserRole } from '@/roles';
+
 export interface CognitoIdTokenPayload {
   aud: string;
   exp: number;
@@ -14,7 +16,7 @@ export interface CognitoIdTokenPayload {
 
   'cognito:username': string;
   'cognito:groups'?: string[];
-  'custom:role'?: string;
+  'custom:role'?: UserRole;
 
   [claim: string]: unknown;
 }

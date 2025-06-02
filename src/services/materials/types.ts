@@ -26,3 +26,13 @@ export interface WeekWithMaterialsDto {
 export interface GetMaterialsByBlockDto {
   weeks: WeekWithMaterialsDto[];
 }
+
+export interface MaterialDto {
+  id: string;
+  weekId: string;
+  title: string;
+  type: MaterialType;
+  fileUrl: string;
+  date: string; // ISO string que devuelve el backend
+  uploadedById?: string; // opcional, puede o no venir
+}
