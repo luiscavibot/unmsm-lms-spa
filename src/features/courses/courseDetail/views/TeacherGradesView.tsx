@@ -3,7 +3,12 @@
 import React, { FC, useState, useEffect, useMemo } from 'react';
 import { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
-import { Add, Save as SaveIcon, InfoOutlined, Delete as DeleteIcon } from '@mui/icons-material';
+import {
+  Add,
+  InfoOutlined,
+  Delete as DeleteIcon,
+  Edit as EditIcon, // ← Asegúrate de importar Edit si lo usas
+} from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import {
   Alert,
@@ -36,23 +41,23 @@ import {
 } from '@/services/evaluations/evaluationsApi';
 
 import { useGetEnrolledStudentsGradesQuery } from '@/services/enrollmentBlocks/enrollmentBlocksApi';
-
-import { showToast } from '@/helpers/notifier';
 import { usePostBlockGradesMutation } from '@/services/grades/gradesSvc';
 
+import { showToast } from '@/helpers/notifier';
+
 interface Evaluacion {
-  id: string; // UUID o identificador temporal
-  title: string; // Título de la evaluación
-  weight: string; // Peso como string para input
-  date: Dayjs | null; // evaluationDate como Dayjs
-  isNew?: boolean; // Flag para nuevas filas
+  id: string;
+  title: string;
+  weight: string;
+  date: Dayjs | null;
+  isNew?: boolean;
 }
 
 type AlumnoConNotas = {
-  id: number; // índice local
-  name: string; // userName
-  enrollmentId: string; // matrícula real
-  [key: string]: string | number; // dinámico: letras “A,B,C...” con el score
+  id: number;
+  name: string;
+  enrollmentId: string;
+  [key: string]: string | number;
 };
 
 interface TeacherGradesViewProps {
@@ -65,14 +70,15 @@ const TeacherGradesView: FC<TeacherGradesViewProps> = ({ blockId }) => {
   const [isEditingAll, setIsEditingAll] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
-  // Control del diálogo “¡Notas subido con éxito!”
+  // ─── Diálogo de confirmación de guardado de notas ───────────────────────────────────────
   const [openDialog, setOpenDialog] = useState(false);
   const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => setOpenDialog(false);
 
-  // “notas” + “editingNotas”
+  // ─── “notas”, “notesEditable” y “editedStudentIds” ──────────────────────────────────────
   const [notas, setNotas] = useState<AlumnoConNotas[]>([]);
   const [notesEditable, setNotesEditable] = useState(false);
+  const [editedStudentIds, setEditedStudentIds] = useState<Set<number>>(new Set());
 
   // ─── 1️⃣ RSQ: fetch de evaluaciones ──────────────────────────────────────────────────────
   const {
@@ -82,7 +88,7 @@ const TeacherGradesView: FC<TeacherGradesViewProps> = ({ blockId }) => {
     error: errorEvals,
   } = useGetEvaluationsByBlockQuery({ blockId: blockId || '' }, { skip: !blockId });
 
-  // ─── 2️⃣ Mutations para evaluaciones ───────────────────────────────────────────────────────
+  // ─── 2️⃣ Mutations para evaluaciones ─────────────────────────────────────────────────────
   const [createEvaluation, { isLoading: isCreating }] = useCreateEvaluationMutation();
   const [updateEvaluation, { isLoading: isUpdating }] = useUpdateEvaluationMutation();
   const [deleteEvaluation, { isLoading: isDeleting }] = useDeleteEvaluationMutation();
@@ -101,7 +107,7 @@ const TeacherGradesView: FC<TeacherGradesViewProps> = ({ blockId }) => {
     setHasChanges(false);
   }, [fetchedEvaluations]);
 
-  // ─── 4️⃣ Cambios inline en tabla de evaluaciones ────────────────────────────────────────────
+  // ─── 4️⃣ Cambios inline en tabla de evaluaciones ───────────────────────────────────────────
   const handleChange = (id: string, field: keyof Evaluacion, value: any) => {
     setEvaluaciones((prev) => prev.map((e) => (e.id === id ? { ...e, [field]: value } : e)));
     setHasChanges(true);
@@ -121,7 +127,6 @@ const TeacherGradesView: FC<TeacherGradesViewProps> = ({ blockId }) => {
     if (!ev || !blockId) return;
 
     if (ev.isNew) {
-      // Solo borrarla del estado local
       setEvaluaciones((prev) => prev.filter((e) => e.id !== id));
     } else {
       try {
@@ -145,7 +150,6 @@ const TeacherGradesView: FC<TeacherGradesViewProps> = ({ blockId }) => {
   const handleSaveAll = async () => {
     if (!blockId) return;
 
-    // Validar cada fila
     for (const ev of evaluaciones) {
       if (!isValidEvaluacion(ev)) {
         showToast('Completa todos los campos correctamente.', 'error');
@@ -165,7 +169,6 @@ const TeacherGradesView: FC<TeacherGradesViewProps> = ({ blockId }) => {
 
           if (ev.isNew) {
             const created = await createEvaluation(payload).unwrap();
-            // Reemplazar ID temporal con el real
             setEvaluaciones((prev) =>
               prev.map((row) =>
                 row.id === ev.id
@@ -216,7 +219,6 @@ const TeacherGradesView: FC<TeacherGradesViewProps> = ({ blockId }) => {
         name: stu.userName,
         enrollmentId: stu.enrollmentId,
       };
-      // Cada evaluación en stu.evaluations: asignar a “A”, “B”, “C”, … en orden
       stu.evaluations.forEach((ev, j) => {
         const letter = String.fromCharCode(65 + j);
         entry[letter] = ev.score;
@@ -225,6 +227,7 @@ const TeacherGradesView: FC<TeacherGradesViewProps> = ({ blockId }) => {
     });
 
     setNotas(mappedNotas);
+    setEditedStudentIds(new Set());
   }, [fetchedGrades]);
 
   // ─── 1️⃣2️⃣ Reconstruir evaluaciones “válidas” + sus letras ──────────────────────────────────
@@ -241,14 +244,26 @@ const TeacherGradesView: FC<TeacherGradesViewProps> = ({ blockId }) => {
 
   const handleNotaChange = (id: number, letra: string, value: string) => {
     setNotas((prev) => prev.map((alumno) => (alumno.id === id ? { ...alumno, [letra]: value } : alumno)));
+    setEditedStudentIds((prev) => {
+      const copy = new Set(prev);
+      copy.add(id);
+      return copy;
+    });
   };
 
-  // ─── 1️⃣4️⃣ Función para “Guardar notas” (invocada cuando notesEditable===true y pulsan Guardar) ──
+  // ─── 1️⃣4️⃣ Función para “Guardar notas” (solo filas editadas) ─────────────────────────────────
   const handleSaveGrades = async () => {
     if (!blockId) return;
 
-    // Construir payload: para cada alumno, tomar su enrollmentId y crear gradeRecords
-    const studentGrades = notas.map((alumno) => {
+    const editedNotas = notas.filter((alumno) => editedStudentIds.has(alumno.id));
+
+    if (editedNotas.length === 0) {
+      showToast('No hay cambios para guardar.', 'info');
+      setNotesEditable(false);
+      return;
+    }
+
+    const studentGrades = editedNotas.map((alumno) => {
       const gradeRecords = evaluacionesValidas.map((ev) => {
         const letra = ev.letter!;
         const raw = alumno[letra]?.toString() || '0';
@@ -269,6 +284,7 @@ const TeacherGradesView: FC<TeacherGradesViewProps> = ({ blockId }) => {
       showToast('Notas guardadas.', 'success');
       setNotesEditable(false);
       handleOpenDialog();
+      setEditedStudentIds(new Set());
     } catch {
       showToast('Error al guardar las notas.', 'error');
     }
@@ -514,13 +530,14 @@ const TeacherGradesView: FC<TeacherGradesViewProps> = ({ blockId }) => {
               <TableCell align="center" sx={{ fontWeight: 700 }}>
                 Promedio
               </TableCell>
-              <TableCell />
+              <TableCell align="center" sx={{ fontWeight: 700 }}>
+                Estado
+              </TableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
             {notas.map((alumno) => {
-              // Calcular promedio ponderado en lectura
               let promedio = '-';
               if (evaluacionLetters.length > 0) {
                 let suma = 0;
@@ -536,6 +553,9 @@ const TeacherGradesView: FC<TeacherGradesViewProps> = ({ blockId }) => {
                 });
                 promedio = totalPeso > 0 ? (suma / totalPeso).toFixed(1) : '-';
               }
+
+              const wasEdited = editedStudentIds.has(alumno.id);
+              const dotColor = wasEdited ? '#198754' : '#f8f8f8';
 
               return (
                 <TableRow key={alumno.id}>
@@ -576,10 +596,17 @@ const TeacherGradesView: FC<TeacherGradesViewProps> = ({ blockId }) => {
                   ))}
 
                   <TableCell align="center">{promedio}</TableCell>
-                  <TableCell align="right">
-                    <IconButton disabled>
-                      <SaveIcon />
-                    </IconButton>
+                  <TableCell align="center">
+                    <Box
+                      component="span"
+                      sx={{
+                        display: 'inline-block',
+                        width: 12,
+                        height: 12,
+                        borderRadius: '50%',
+                        bgcolor: dotColor,
+                      }}
+                    />
                   </TableCell>
                 </TableRow>
               );
