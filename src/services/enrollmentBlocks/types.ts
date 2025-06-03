@@ -12,15 +12,18 @@ export interface EnrolledStudentsResponseDto {
   classSessionId: string | null;
   studentNumber: number;
   students: EnrolledStudentDto[];
+  canEditAttendance: boolean;
+  attendanceStatusMessage: string | null;
 }
 
-export interface EnrolledStudentsResponseDto {
-  /** Fecha de la sesión de asistencia (formato YYYY-MM-DD), o null si no hay sesión */
-  date: string | null;
-  /** ID de la sesión de clase relacionada, o null si no existe */
-  classSessionId: string | null;
-  /** Número total de estudiantes matriculados en este bloque */
-  studentNumber: number;
-  /** Array de estudiantes matriculados con su estado de asistencia */
-  students: EnrolledStudentDto[];
+export interface ClassDayInfo {
+  date: string;
+  startTime: string;
+  endTime: string;
+  sessionId: string;
+  virtualRoomUrl?: string;
+}
+
+export interface ClassDaysResponseDto {
+  classDays: ClassDayInfo[];
 }

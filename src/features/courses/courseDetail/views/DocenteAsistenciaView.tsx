@@ -1,8 +1,8 @@
 // src/components/DocenteAsistenciaView.tsx
 
-import React, { FC, useState, useEffect } from 'react';
+import React, { FC, useState, useEffect, useMemo } from 'react';
 import { Dayjs } from 'dayjs';
-// import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
 import { useForm, Controller } from 'react-hook-form';
 
 import {
@@ -26,13 +26,17 @@ import {
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
 
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
+import {
+  useGetEnrolledStudentsAttendanceQuery,
+  useGetClassSessionsDatesQuery,
+} from '@/services/enrollmentBlocks/enrollmentBlocksApi';
 import { usePostBulkAttendanceMutation } from '@/services/attendance/attendanceSvc';
-// import { useAbility } from '@/hooks/useAbility';
-// import { BlockType } from '@/services/courses/types';
-// import { useAppSelector } from '@/store/hooks';
-// import { UserRole } from '@/roles';
+
 import { showToast } from '@/helpers/notifier';
-import { useGetEnrolledStudentsAttendanceQuery } from '@/services/enrollmentBlocks/enrollmentBlocksApi';
 import { AttendanceStatus } from '@/services/attendance/types';
 
 interface DocenteAsistenciaViewProps {
@@ -52,25 +56,38 @@ interface StudentAttendance {
 }
 
 const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
-  // Fecha seleccionada (Dayjs) para filtrar
+  // 1️⃣ Fecha seleccionada en el DatePicker (Dayjs)
   const [value, setValue] = useState<Dayjs | null>(null);
-  // filterDate en YYYY-MM-DD
+  // 2️⃣ filterDate en formato YYYY-MM-DD
   const [filterDate, setFilterDate] = useState<string | null>(null);
 
-  // Hook para buscar estudiantes + asistencia
-  const { data, isLoading, isFetching, error } = useGetEnrolledStudentsAttendanceQuery({
+  // 3️⃣ Llamada al endpoint de asistencias, que trae “date” y canEditAttendance
+  const {
+    data: attendanceData,
+    isLoading: isLoadingAttendance,
+    isFetching: isFetchingAttendance,
+    error: errorAttendance,
+  } = useGetEnrolledStudentsAttendanceQuery({
     blockId,
     date: filterDate || undefined,
   });
 
-  // Hook para guardar asistencia masiva
+  // 4️⃣ Llamada al endpoint de fechas de sesiones de clase
+  const {
+    data: classDaysData,
+    isLoading: isLoadingClassDays,
+    isFetching: isFetchingClassDays,
+    error: errorClassDays,
+  } = useGetClassSessionsDatesQuery({ blockId });
+
+  // 5️⃣ Hook para guardar asistencia masiva
   const [postBulkAttendance, { isLoading: isSubmitting }] = usePostBulkAttendanceMutation();
 
-  // Estado local de estudiantes, mapeados desde la respuesta
+  // 6️⃣ Estado local de estudiantes a mostrar en la tabla
   const [students, setStudents] = useState<StudentAttendance[]>([]);
   const [isSaved, setIsSaved] = useState(false);
 
-  // control para el campo de búsqueda
+  // 7️⃣ Control para el campo de búsqueda
   const { control, watch } = useForm<FormValues>({ defaultValues: { search: '' } });
   const { search } = watch();
   const [debouncedSearch, setDebouncedSearch] = useState(search);
@@ -80,7 +97,7 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
     return () => clearTimeout(handler);
   }, [search]);
 
-  // Cada vez que cambia value (Dayjs), actualizamos filterDate en formato YYYY-MM-DD
+  // 8️⃣ Cada vez que cambie “value” en el DatePicker, actualizamos “filterDate”
   useEffect(() => {
     if (value) {
       setFilterDate(value.format('YYYY-MM-DD'));
@@ -89,14 +106,23 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
     }
   }, [value]);
 
-  // Cuando llega data nueva, la mapeamos a StudentAttendance[]
+  // 9️⃣ Cuando se reciba attendanceData, definimos el DatePicker por defecto
   useEffect(() => {
-    if (!data) {
+    if (attendanceData && attendanceData.date) {
+      const defaultDay = dayjs(attendanceData.date, 'YYYY-MM-DD');
+      setValue(defaultDay);
+      setFilterDate(attendanceData.date);
+    }
+  }, [attendanceData]);
+
+  // 🔟 Cuando cambia attendanceData.students, lo mapeamos a StudentAttendance[]
+  useEffect(() => {
+    if (!attendanceData) {
       setStudents([]);
       return;
     }
 
-    const mapped: StudentAttendance[] = data.students.map((s) => {
+    const mapped: StudentAttendance[] = attendanceData.students.map((s) => {
       let opcion: AttendanceOption = null;
       if (s.attendanceStatus === AttendanceStatus.PRESENT) opcion = 'asistio';
       else if (s.attendanceStatus === AttendanceStatus.ABSENT) opcion = 'noAsistio';
@@ -110,28 +136,31 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
     });
 
     setStudents(mapped);
-    // Reset save flag whenever data changes
-    setIsSaved(false);
-  }, [data]);
+    setIsSaved(false); // Resetear bandera cuando cambian los datos
+  }, [attendanceData]);
 
-  // Filtrar estudiantes por debouncedSearch
-  const filteredStudents = students.filter((s) => s.nombre.toLowerCase().includes(debouncedSearch.toLowerCase()));
+  // 1️⃣1️⃣ Filtrar estudiantes por debouncedSearch
+  const filteredStudents = useMemo(
+    () => students.filter((s) => s.nombre.toLowerCase().includes(debouncedSearch.toLowerCase())),
+    [students, debouncedSearch],
+  );
 
-  // Validación para habilitar "Guardar"
+  // 1️⃣2️⃣ Validación para habilitar “Guardar”
   const canSave =
     filteredStudents.length > 0 &&
     filteredStudents.every((s) => s.asistencia !== null) &&
     !isSubmitting &&
-    !!data?.classSessionId;
+    !!attendanceData?.classSessionId &&
+    attendanceData.canEditAttendance;
 
   const handleAttendanceChange = (id: string, option: AttendanceOption) => {
     setStudents((prev) => prev.map((student) => (student.id === id ? { ...student, asistencia: option } : student)));
   };
 
+  // 1️⃣3️⃣ Manejo de “Guardar”: invoca postBulkAttendance + notificador
   const handleSave = async () => {
-    if (!canSave || !data?.classSessionId) return;
+    if (!canSave || !attendanceData?.classSessionId) return;
 
-    // Construir payload para POST /attendance/bulk
     const attendanceRecords = students.map((s) => {
       let status: AttendanceStatus;
       switch (s.asistencia) {
@@ -145,7 +174,7 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
           status = AttendanceStatus.LATE;
           break;
         default:
-          status = AttendanceStatus.ABSENT; // fallback, aunque no debería ocurrir
+          status = AttendanceStatus.ABSENT;
       }
       return {
         enrollmentId: s.id,
@@ -155,7 +184,7 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
 
     try {
       await postBulkAttendance({
-        classSessionId: data.classSessionId,
+        classSessionId: attendanceData.classSessionId,
         attendanceRecords,
       }).unwrap();
 
@@ -167,43 +196,64 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
     }
   };
 
-  if (isLoading || isFetching) {
+  // 1️⃣4️⃣ Carga/errores combinados
+  if (isLoadingAttendance || isFetchingAttendance || isLoadingClassDays || isFetchingClassDays) {
     return (
       <Box sx={{ textAlign: 'center', py: 4 }}>
         <CircularProgress />
       </Box>
     );
   }
-  if (error || !data) {
+  if (errorClassDays) {
+    return <Alert severity="error">Error al cargar fechas de clase.</Alert>;
+  }
+  if (errorAttendance || !attendanceData) {
     return <Alert severity="error">Error al cargar asistencias.</Alert>;
   }
+  if (!classDaysData) {
+    return <Alert severity="error">No se encontraron días de clase.</Alert>;
+  }
+
+  // 1️⃣5️⃣ Lista de fechas disponibles para el DatePicker
+  const availableDates = classDaysData.classDays.map((d) => d.date);
+
+  // 1️⃣6️⃣ Función para deshabilitar fechas no disponibles
+  const shouldDisableDate = (date: Dayjs) => {
+    const formatted = date.format('YYYY-MM-DD');
+    return !availableDates.includes(formatted);
+  };
 
   return (
     <>
-      <Alert sx={{ mb: 3 }} variant="outlined" severity="info">
+      {/* <Alert sx={{ mb: 3 }} variant="outlined" severity="info">
         Solo se podrá ingresar o editar la asistencia marcada hasta un día después de la clase realizada, esto según lo
         consignado en el horario y calendario del curso
-      </Alert>
+      </Alert> */}
 
       <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: '24px' }}>
-        {/* Si quieres habilitar el DatePicker, descomenta y ajusta */}
-        {/*
-        <DatePicker
-          label="Seleccionar fecha"
-          value={value}
-          onChange={(newValue) => setValue(newValue)}
-          format="DD/MM/YYYY"
-          slotProps={{
-            field: {
-              clearable: true,
-              onClear: () => setValue(null),
-            },
-          }}
-        />
-        */}
+        {/* El DatePicker SIEMPRE permanece habilitado */}
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DatePicker
+            label="Seleccionar fecha"
+            value={value}
+            onChange={(newValue) => setValue(newValue)}
+            format="DD/MM/YYYY"
+            slotProps={{
+              field: {
+                clearable: true,
+                onClear: () => setValue(null),
+              },
+              actionBar: {
+                actions: ['clear'],
+              },
+            }}
+            shouldDisableDate={shouldDisableDate}
+            sx={{ mr: 2, width: '200px' }}
+          />
+        </LocalizationProvider>
 
-        <FormControl variant="standard" size="medium" sx={{ m: 1, width: '309px' }}>
-          <InputLabel htmlFor="search-input">Buscar</InputLabel>
+        <FormControl variant="standard" size="medium" sx={{ width: '309px' }}>
+          <InputLabel htmlFor="search-input">Buscar estudiante</InputLabel>
           <Controller
             name="search"
             control={control}
@@ -211,6 +261,7 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
               <Input
                 id="search-input"
                 {...field}
+                placeholder="Apellido o nombre"
                 autoComplete="off"
                 endAdornment={
                   <InputAdornment position="end">
@@ -224,6 +275,12 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
           />
         </FormControl>
       </Stack>
+
+      {attendanceData.attendanceStatusMessage && (
+        <Alert sx={{ mb: 2 }} severity="warning">
+          {attendanceData.attendanceStatusMessage}
+        </Alert>
+      )}
 
       <Box sx={{ display: 'flex', gap: '24px 16px' }}>
         <TableContainer component={Box}>
@@ -254,7 +311,7 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
                         checked={student.asistencia === option}
                         onChange={() => handleAttendanceChange(student.id, option)}
                         color="secondary"
-                        disabled={isSaved}
+                        disabled={!attendanceData.canEditAttendance || isSaved}
                       />
                     </TableCell>
                   ))}

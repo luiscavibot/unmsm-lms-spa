@@ -33,7 +33,6 @@ import { BlockType } from '@/services/courses/types';
 import { useAppSelector } from '@/store/hooks';
 import { UserRole } from '@/roles';
 import { showToast } from '@/helpers/notifier';
-import InfoItem from '../components/InfoItem';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',

@@ -1,6 +1,6 @@
 import { baseApi } from '../baseApi';
 import lab from '@/services/apiLabels';
-import { EnrolledStudentsResponseDto } from './types';
+import { ClassDaysResponseDto, EnrolledStudentsResponseDto } from './types';
 
 export const enrollmentBlocksApi = baseApi.injectEndpoints({
   overrideExisting: false,
@@ -13,7 +13,14 @@ export const enrollmentBlocksApi = baseApi.injectEndpoints({
       }),
       providesTags: (_result, _error, { blockId }) => [{ type: lab.Attendance as const, id: blockId }],
     }),
+    getClassSessionsDates: build.query<ClassDaysResponseDto, { blockId: string }>({
+      query: ({ blockId }) => ({
+        url: `/class-sessions/block/${blockId}/dates`,
+        method: 'GET',
+      }),
+      providesTags: (_result, _error, { blockId }) => [{ type: lab.Attendance as const, id: blockId }],
+    }),
   }),
 });
 
-export const { useGetEnrolledStudentsAttendanceQuery } = enrollmentBlocksApi;
+export const { useGetEnrolledStudentsAttendanceQuery, useGetClassSessionsDatesQuery } = enrollmentBlocksApi;
