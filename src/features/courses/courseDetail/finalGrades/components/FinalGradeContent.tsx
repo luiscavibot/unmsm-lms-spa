@@ -316,7 +316,7 @@ const FinalGradeContent = () => {
             <Typography sx={{ color: 'neutral.dark', fontWeight: '700', mb: '8px' }}>Resumen</Typography>
             <Box sx={{ mb: '24px' }}>
               <Typography variant="body1">
-                Promedio general del curso: <span>{courseAverage.toFixed(1)}</span>
+                Promedio general del curso: <span>{courseAverage.toFixed(2)}</span>
               </Typography>
               <Typography variant="body1">
                 Nota más alta: <span>{highest}</span>

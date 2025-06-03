@@ -1,14 +1,9 @@
 // src/components/TeacherGradesView.tsx
 
-import React, { FC, useState, useEffect, useMemo } from 'react';
+import React, { FC, useState, useEffect } from 'react';
 import { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
-import {
-  Add,
-  InfoOutlined,
-  Delete as DeleteIcon,
-  Edit as EditIcon, // ← Asegúrate de importar Edit si lo usas
-} from '@mui/icons-material';
+import { Add, InfoOutlined, Delete as DeleteIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import {
   Alert,
@@ -30,6 +25,7 @@ import {
   TextField,
   Tooltip,
   Typography,
+  useTheme,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 
@@ -65,6 +61,8 @@ interface TeacherGradesViewProps {
 }
 
 const TeacherGradesView: FC<TeacherGradesViewProps> = ({ blockId }) => {
+  const theme = useTheme();
+
   // ─── 0️⃣ Hooks de estado ─────────────────────────────────────────────────────────────────
   const [evaluaciones, setEvaluaciones] = useState<Evaluacion[]>([]);
   const [isEditingAll, setIsEditingAll] = useState(false);
@@ -523,15 +521,34 @@ const TeacherGradesView: FC<TeacherGradesViewProps> = ({ blockId }) => {
             <TableRow>
               <TableCell sx={{ fontWeight: 700 }}>Nombre</TableCell>
               {evaluacionLetters.map((letra) => (
-                <TableCell key={letra} align="center" sx={{ fontWeight: 700 }}>
+                <TableCell
+                  key={letra}
+                  align="center"
+                  sx={{
+                    fontWeight: 700,
+                    '&:hover': { backgroundColor: theme.palette.action.hover }, // sombreado al pasar mouse
+                  }}
+                >
                   {letra}
                 </TableCell>
               ))}
-              <TableCell align="center" sx={{ fontWeight: 700 }}>
+              <TableCell
+                align="center"
+                sx={{
+                  fontWeight: 700,
+                  '&:hover': { backgroundColor: theme.palette.action.hover },
+                }}
+              >
                 Promedio
               </TableCell>
-              <TableCell align="center" sx={{ fontWeight: 700 }}>
-                Estado
+              <TableCell
+                align="center"
+                sx={{
+                  fontWeight: 700,
+                  '&:hover': { backgroundColor: theme.palette.action.hover },
+                }}
+              >
+                Modificado
               </TableCell>
             </TableRow>
           </TableHead>
@@ -551,52 +568,87 @@ const TeacherGradesView: FC<TeacherGradesViewProps> = ({ blockId }) => {
                     totalPeso += peso;
                   }
                 });
-                promedio = totalPeso > 0 ? (suma / totalPeso).toFixed(1) : '-';
+                promedio = totalPeso > 0 ? (suma / totalPeso).toFixed(2) : '-';
               }
 
               const wasEdited = editedStudentIds.has(alumno.id);
-              const dotColor = wasEdited ? '#198754' : '#f8f8f8';
+              const dotColor = wasEdited ? '#198754' : '#e7e7e7';
 
               return (
-                <TableRow key={alumno.id}>
+                <TableRow
+                  key={alumno.id}
+                  sx={{
+                    // Este bloque sombreará toda la fila al pasar el ratón
+                    '&:hover': {
+                      backgroundColor: theme.palette.action.hover,
+                    },
+                  }}
+                >
                   <TableCell>{alumno.name}</TableCell>
 
-                  {evaluacionLetters.map((letra) => (
-                    <TableCell key={letra} align="center">
-                      <OutlinedInput
-                        value={alumno[letra]?.toString() || ''}
-                        disabled={!notesEditable}
-                        type="number"
-                        onChange={(e) => handleNotaChange(alumno.id, letra, e.target.value)}
-                        inputProps={{ step: 0.1, min: 0, max: 20 }}
-                        sx={{
-                          '.MuiOutlinedInput-input': {
-                            padding: 0,
-                            textAlign: 'center',
-                            width: '42px',
-                            height: '32px',
-                            '&::-webkit-outer-spin-button': {
-                              WebkitAppearance: 'none',
-                              margin: 0,
-                            },
-                            '&::-webkit-inner-spin-button': {
-                              WebkitAppearance: 'none',
-                              margin: 0,
-                            },
-                            '&[type=number]': {
-                              MozAppearance: 'textfield',
-                            },
-                          },
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'neutral.dark',
-                          },
-                        }}
-                      />
-                    </TableCell>
-                  ))}
+                  {evaluacionLetters.map((letra) => {
+                    // Detectar si el valor actual de esta celda es inválido
+                    const raw = alumno[letra]?.toString() ?? '';
+                    const num = parseFloat(raw);
+                    const isInvalid = notesEditable && (raw === '' || isNaN(num) || num < 0 || num > 20);
 
-                  <TableCell align="center">{promedio}</TableCell>
-                  <TableCell align="center">
+                    return (
+                      <TableCell
+                        key={letra}
+                        align="center"
+                        sx={{
+                          '&:hover': { backgroundColor: theme.palette.action.hover },
+                        }}
+                      >
+                        <OutlinedInput
+                          value={raw}
+                          disabled={!notesEditable}
+                          type="number"
+                          onChange={(e) => handleNotaChange(alumno.id, letra, e.target.value)}
+                          inputProps={{ step: 0.1, min: 0, max: 20 }}
+                          sx={{
+                            '.MuiOutlinedInput-input': {
+                              paddingY: 0.1,
+                              paddingX: 0.5,
+                              textAlign: 'center',
+                              width: '42px',
+                              height: '32px',
+                              color: isInvalid ? theme.palette.error.main : undefined,
+                              '&::-webkit-outer-spin-button': {
+                                WebkitAppearance: 'none',
+                                margin: 0,
+                              },
+                              '&::-webkit-inner-spin-button': {
+                                WebkitAppearance: 'none',
+                                margin: 0,
+                              },
+                              '&[type=number]': {
+                                MozAppearance: 'textfield',
+                              },
+                            },
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              borderColor: isInvalid ? theme.palette.error.main : 'neutral.dark',
+                            },
+                          }}
+                        />
+                      </TableCell>
+                    );
+                  })}
+
+                  <TableCell
+                    align="center"
+                    sx={{
+                      '&:hover': { backgroundColor: theme.palette.action.hover },
+                    }}
+                  >
+                    {promedio}
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      '&:hover': { backgroundColor: theme.palette.action.hover },
+                    }}
+                  >
                     <Box
                       component="span"
                       sx={{
