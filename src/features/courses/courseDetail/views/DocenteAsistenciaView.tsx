@@ -277,7 +277,7 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
       </Stack>
 
       {attendanceData.attendanceStatusMessage && (
-        <Alert sx={{ mb: 2 }} severity="warning">
+        <Alert sx={{ mb: 2 }} severity="success">
           {attendanceData.attendanceStatusMessage}
         </Alert>
       )}

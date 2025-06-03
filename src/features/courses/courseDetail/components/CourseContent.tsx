@@ -15,6 +15,8 @@ import {
 } from '@mui/material';
 import { FC, lazy, Suspense, useMemo, useState } from 'react';
 import InfoItem from './InfoItem';
+import { useAppSelector } from '@/store/hooks';
+import { UserRole } from '@/roles';
 
 const BloqueView = lazy(() => import('@/features/courses/courseDetail/components/BloqueView'));
 
@@ -25,6 +27,10 @@ const labelStyle = { fontWeight: 700, color: 'neutral.dark' };
 const valueStyle = { fontWeight: 400, color: 'neutral.main' };
 
 const CourseContent: FC<CourseContentProps> = ({ course }) => {
+  //obtener el estado de authstate
+  const { user } = useAppSelector((state) => state.auth);
+  const roles = useMemo(() => user?.['cognito:groups'] ?? [], [user]);
+
   const startDateFormatted = useMemo(() => formatDate(course.startDate), [course.startDate]);
   const endDateFormatted = useMemo(() => formatDate(course.endDate), [course.endDate]);
 
@@ -60,9 +66,7 @@ const CourseContent: FC<CourseContentProps> = ({ course }) => {
         </Link>
         <Typography sx={{ color: 'text.primary' }}>{course.name}</Typography>
       </Breadcrumbs>
-      <Typography sx={{ color: 'secondary.dark', fontSize: '44px', fontWeight: '700', mb: 1 }} variant="h4">
-        {course.name}
-      </Typography>
+      <Typography sx={{ color: 'primary.dark', fontSize: '20px', fontWeight: '700', mb: 1 }}>{course.name}</Typography>
       <Typography sx={{ color: 'neutral.main', fontSize: '14px', fontWeight: '400', mb: 5 }} variant="body2">
         {course.programName}
       </Typography>
@@ -93,11 +97,13 @@ const CourseContent: FC<CourseContentProps> = ({ course }) => {
             </Typography>
           </Box>
         </Box>
-        <Box>
-          <Box sx={{ borderRadius: '7px', p: 1, bgcolor: 'primary.lightest', display: 'inline-block' }}>
-            <InfoItem label="Nota final: " value={course.endNote != null ? course.endNote : 'Pendiente'} />
+        {!roles.includes(UserRole.Teacher) && (
+          <Box>
+            <Box sx={{ borderRadius: '7px', p: 1, bgcolor: 'primary.lightest', display: 'inline-block' }}>
+              <InfoItem label="Nota final: " value={course.endNote != null ? course.endNote.toFixed(2) : 'Pendiente'} />
+            </Box>
           </Box>
-        </Box>
+        )}
       </Box>
       <Stack direction="row" spacing={2} mb={5} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="body1">
