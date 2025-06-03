@@ -6,6 +6,7 @@ enum ApiLabels {
   Attendance = 'Attendance',
   Grades = 'Grades',
   BlockAssignments = 'BlockAssignments',
+  Evaluations = 'Evaluations',
 }
 
 export default ApiLabels;

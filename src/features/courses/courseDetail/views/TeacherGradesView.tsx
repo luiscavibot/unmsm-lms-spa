@@ -1,14 +1,15 @@
-// TeacherGradesView.tsx
-import React from 'react';
-import { Add, Delete, Edit, InfoOutlined, Save } from '@mui/icons-material';
+// src/components/TeacherGradesView.tsx
+
+import React, { FC, useState, useEffect, useMemo } from 'react';
 import { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
+import { Add, Save as SaveIcon, InfoOutlined, Delete as DeleteIcon } from '@mui/icons-material';
+import { Link } from 'react-router-dom';
 import {
-  // useLocation,
-  Link,
-} from 'react-router-dom';
-import {
+  Alert,
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -27,208 +28,363 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 
+import {
+  useGetEvaluationsByBlockQuery,
+  useCreateEvaluationMutation,
+  useUpdateEvaluationMutation,
+  useDeleteEvaluationMutation,
+} from '@/services/evaluations/evaluationsApi';
+
+import { useGetEnrolledStudentsGradesQuery } from '@/services/enrollmentBlocks/enrollmentBlocksApi';
+
+import { showToast } from '@/helpers/notifier';
+import { usePostBlockGradesMutation } from '@/services/grades/gradesSvc';
+
 interface Evaluacion {
-  id: number;
-  name: string;
-  weight: string;
-  date: Dayjs | null;
+  id: string; // UUID o identificador temporal
+  title: string; // Título de la evaluación
+  weight: string; // Peso como string para input
+  date: Dayjs | null; // evaluationDate como Dayjs
+  isNew?: boolean; // Flag para nuevas filas
 }
 
 type AlumnoConNotas = {
-  id: number;
-  name: string;
-  [key: string]: string | number;
+  id: number; // índice local
+  name: string; // userName
+  enrollmentId: string; // matrícula real
+  [key: string]: string | number; // dinámico: letras “A,B,C...” con el score
 };
 
-const TeacherGradesView = () => {
-  //   const location = useLocation();
-  const [openDialog, setOpenDialog] = React.useState(false);
+interface TeacherGradesViewProps {
+  blockId: string;
+}
+
+const TeacherGradesView: FC<TeacherGradesViewProps> = ({ blockId }) => {
+  // ─── 0️⃣ Hooks de estado ─────────────────────────────────────────────────────────────────
+  const [evaluaciones, setEvaluaciones] = useState<Evaluacion[]>([]);
+  const [isEditingAll, setIsEditingAll] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  // Control del diálogo “¡Notas subido con éxito!”
+  const [openDialog, setOpenDialog] = useState(false);
   const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => setOpenDialog(false);
-  //   const initialized = React.useRef(false);
-  const [evaluaciones, setEvaluaciones] = React.useState<Evaluacion[]>([]);
-  const [editingRows, setEditingRows] = React.useState<Record<number, boolean>>({});
 
-  const handleChange = (id: number, field: keyof Evaluacion, value: any) => {
+  // “notas” + “editingNotas”
+  const [notas, setNotas] = useState<AlumnoConNotas[]>([]);
+  const [notesEditable, setNotesEditable] = useState(false);
+
+  // ─── 1️⃣ RSQ: fetch de evaluaciones ──────────────────────────────────────────────────────
+  const {
+    data: fetchedEvaluations,
+    isLoading: isLoadingEvals,
+    isFetching: isFetchingEvals,
+    error: errorEvals,
+  } = useGetEvaluationsByBlockQuery({ blockId: blockId || '' }, { skip: !blockId });
+
+  // ─── 2️⃣ Mutations para evaluaciones ───────────────────────────────────────────────────────
+  const [createEvaluation, { isLoading: isCreating }] = useCreateEvaluationMutation();
+  const [updateEvaluation, { isLoading: isUpdating }] = useUpdateEvaluationMutation();
+  const [deleteEvaluation, { isLoading: isDeleting }] = useDeleteEvaluationMutation();
+
+  // ─── 3️⃣ Mapear “fetchedEvaluations” a estado local ───────────────────────────────────────
+  useEffect(() => {
+    if (!fetchedEvaluations) return;
+    const mapped: Evaluacion[] = fetchedEvaluations.map((ev) => ({
+      id: ev.id,
+      title: ev.title,
+      weight: ev.weight.toString(),
+      date: dayjs(ev.evaluationDate),
+      isNew: false,
+    }));
+    setEvaluaciones(mapped);
+    setHasChanges(false);
+  }, [fetchedEvaluations]);
+
+  // ─── 4️⃣ Cambios inline en tabla de evaluaciones ────────────────────────────────────────────
+  const handleChange = (id: string, field: keyof Evaluacion, value: any) => {
     setEvaluaciones((prev) => prev.map((e) => (e.id === id ? { ...e, [field]: value } : e)));
+    setHasChanges(true);
   };
 
-  const toggleEdit = (id: number) => {
-    setEditingRows((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  };
-
-  const handleDeleteEvaluacion = (id: number) => {
-    setEvaluaciones((prev) => prev.filter((e) => e.id !== id));
-    setEditingRows((prev) => {
-      const copy = { ...prev };
-      delete copy[id];
-      return copy;
-    });
-  };
-
+  // ─── 5️⃣ Agregar nueva evaluación ─────────────────────────────────────────────────────────
   const handleAddEvaluacion = () => {
-    const newId = evaluaciones.length ? Math.max(...evaluaciones.map((e) => e.id)) + 1 : 1;
-    setEvaluaciones((prev) => [...prev, { id: newId, name: '', weight: '1', date: null }]);
-    setEditingRows((prev) => ({ ...prev, [newId]: true }));
+    const tempId = `temp-${Date.now()}`;
+    setEvaluaciones((prev) => [...prev, { id: tempId, title: '', weight: '0', date: null, isNew: true }]);
+    setIsEditingAll(true);
+    setHasChanges(true);
   };
 
-  const canSaveEvaluacion = (evaluacion: Evaluacion) => {
-    const pesoNum = parseInt(evaluacion.weight, 10);
-    return (
-      evaluacion.name.trim() !== '' && !isNaN(pesoNum) && pesoNum >= 1 && pesoNum <= 100 && evaluacion.date !== null
-    );
+  // ─── 6️⃣ Eliminar evaluación ───────────────────────────────────────────────────────────────
+  const handleDeleteEvaluacion = async (id: string) => {
+    const ev = evaluaciones.find((e) => e.id === id);
+    if (!ev || !blockId) return;
+
+    if (ev.isNew) {
+      // Solo borrarla del estado local
+      setEvaluaciones((prev) => prev.filter((e) => e.id !== id));
+    } else {
+      try {
+        await deleteEvaluation({ id, blockId }).unwrap();
+        setEvaluaciones((prev) => prev.filter((e) => e.id !== id));
+        showToast('Evaluación eliminada.', 'success');
+      } catch {
+        showToast('Error al eliminar la evaluación.', 'error');
+      }
+    }
+    setHasChanges(true);
   };
 
-  const evaluacionesValidas = evaluaciones
-    .filter((ev) => {
-      const pesoNum = parseInt(ev.weight, 10);
-      return (
-        ev.name.trim() !== '' &&
-        !isNaN(pesoNum) &&
-        pesoNum >= 1 &&
-        pesoNum <= 100 &&
-        ev.date !== null &&
-        !editingRows[ev.id] // ✅ Asegurarse de que esté guardada
-      );
-    })
-    .map((ev, idx) => ({
-      ...ev,
-      letter: String.fromCharCode(65 + idx), // ✅ Asignar letra directamente
-    }));
+  // ─── 7️⃣ Validar evaluación individual ─────────────────────────────────────────────────────
+  const isValidEvaluacion = (ev: Evaluacion) => {
+    const peso = parseFloat(ev.weight);
+    return ev.title.trim() !== '' && !isNaN(peso) && peso >= 0 && peso <= 100 && ev.date !== null;
+  };
 
-  const evaluacionLetters = evaluacionesValidas.map((ev) => ev.letter);
+  // ─── 8️⃣ Guardar todas las evaluaciones batch ────────────────────────────────────────────────
+  const handleSaveAll = async () => {
+    if (!blockId) return;
 
-  const [notas, setNotas] = React.useState<AlumnoConNotas[]>(
-    [
-      { id: 1, name: 'Ana Torres' },
-      { id: 2, name: 'Luis Martínez' },
-      { id: 3, name: 'Pedro Gómez' },
-    ].map((alumno) => {
-      const base: AlumnoConNotas = { ...alumno };
-      evaluacionesValidas.forEach((ev) => (base[ev.letter] = ''));
-      return base;
-    }),
-  );
-
-  const calcularPromedioPonderado = (alumno: AlumnoConNotas, pesos: Record<string, number>) => {
-    let suma = 0;
-    let totalPeso = 0;
-
-    for (const { letter: letra } of evaluacionesValidas) {
-      const nota = parseFloat(alumno[letra]?.toString() || '0');
-      const peso = pesos[letra] || 0;
-
-      if (!isNaN(nota) && peso > 0) {
-        suma += nota * peso;
-        totalPeso += peso;
+    // Validar cada fila
+    for (const ev of evaluaciones) {
+      if (!isValidEvaluacion(ev)) {
+        showToast('Completa todos los campos correctamente.', 'error');
+        return;
       }
     }
 
-    return totalPeso > 0 ? (suma / totalPeso).toFixed(1) : '-';
+    try {
+      await Promise.all(
+        evaluaciones.map(async (ev) => {
+          const payload = {
+            blockId,
+            title: ev.title,
+            evaluationDate: ev.date!.format('YYYY-MM-DD'),
+            weight: parseFloat(ev.weight),
+          };
+
+          if (ev.isNew) {
+            const created = await createEvaluation(payload).unwrap();
+            // Reemplazar ID temporal con el real
+            setEvaluaciones((prev) =>
+              prev.map((row) =>
+                row.id === ev.id
+                  ? {
+                      id: created.id,
+                      title: created.title,
+                      weight: created.weight.toString(),
+                      date: dayjs(created.evaluationDate),
+                      isNew: false,
+                    }
+                  : row,
+              ),
+            );
+          } else {
+            await updateEvaluation({ id: ev.id, ...payload }).unwrap();
+          }
+        }),
+      );
+      showToast('Evaluaciones guardadas.', 'success');
+      setIsEditingAll(false);
+      setHasChanges(false);
+    } catch {
+      showToast('Error al guardar las evaluaciones.', 'error');
+    }
   };
 
-  const [editingNotas, setEditingNotas] = React.useState<Record<number, boolean>>({});
+  // ─── 9️⃣ Control de habilitación del botón “Guardar evaluaciones” ────────────────────────────
+  const saveEnabled = hasChanges && !isCreating && !isUpdating && !isDeleting;
+
+  // ─── 🔟 RSQ: fetch de las notas de estudiantes para este bloque ───────────────────────────────
+  const {
+    data: fetchedGrades,
+    isLoading: isLoadingGrades,
+    isFetching: isFetchingGrades,
+    error: errorGrades,
+  } = useGetEnrolledStudentsGradesQuery({ blockId }, { skip: !blockId });
+
+  // ─── 1️⃣1️⃣ Cuando llegan las notas, mapear a “notas” con enrollmentId ────────────────────────
+  useEffect(() => {
+    if (!fetchedGrades) {
+      setNotas([]);
+      return;
+    }
+
+    const mappedNotas: AlumnoConNotas[] = fetchedGrades.students.map((stu, idx) => {
+      const entry: AlumnoConNotas = {
+        id: idx,
+        name: stu.userName,
+        enrollmentId: stu.enrollmentId,
+      };
+      // Cada evaluación en stu.evaluations: asignar a “A”, “B”, “C”, … en orden
+      stu.evaluations.forEach((ev, j) => {
+        const letter = String.fromCharCode(65 + j);
+        entry[letter] = ev.score;
+      });
+      return entry;
+    });
+
+    setNotas(mappedNotas);
+  }, [fetchedGrades]);
+
+  // ─── 1️⃣2️⃣ Reconstruir evaluaciones “válidas” + sus letras ──────────────────────────────────
+  const evaluacionesValidas = evaluaciones
+    .filter((ev) => !ev.isNew && ev.title.trim() !== '' && ev.date)
+    .map((ev, idx) => ({
+      ...ev,
+      letter: String.fromCharCode(65 + idx),
+    }));
+  const evaluacionLetters = evaluacionesValidas.map((ev) => ev.letter!);
+
+  // ─── 1️⃣3️⃣ Usar el hook para guardar notas por bloque ─────────────────────────────────────────
+  const [postBlockGrades, { isLoading: isSavingGrades }] = usePostBlockGradesMutation();
 
   const handleNotaChange = (id: number, letra: string, value: string) => {
-    setNotas((prev) => prev.map((alumno) => (alumno.id === id ? { ...alumno, [letra]: value.toString() } : alumno)));
+    setNotas((prev) => prev.map((alumno) => (alumno.id === id ? { ...alumno, [letra]: value } : alumno)));
   };
 
-  const todosGuardados = notas.every((alumno) => !editingNotas[alumno.id]);
+  // ─── 1️⃣4️⃣ Función para “Guardar notas” (invocada cuando notesEditable===true y pulsan Guardar) ──
+  const handleSaveGrades = async () => {
+    if (!blockId) return;
 
-  const todasNotasCompletas = notas.every((alumno) =>
-    evaluacionLetters.every((letra) => {
-      const notaStr = alumno[letra]?.toString() || '';
-      const nota = parseFloat(notaStr);
-      return notaStr !== '' && !isNaN(nota) && nota >= 0 && nota <= 20;
-    }),
-  );
+    // Construir payload: para cada alumno, tomar su enrollmentId y crear gradeRecords
+    const studentGrades = notas.map((alumno) => {
+      const gradeRecords = evaluacionesValidas.map((ev) => {
+        const letra = ev.letter!;
+        const raw = alumno[letra]?.toString() || '0';
+        const score = parseFloat(raw);
+        return {
+          evaluationId: ev.id,
+          score: isNaN(score) ? 0 : score,
+        };
+      });
+      return {
+        enrollmentId: alumno.enrollmentId,
+        gradeRecords,
+      };
+    });
 
-  const guardarHabilitado = todosGuardados && todasNotasCompletas;
-
-  const handleSaveGrades = () => {
-    handleOpenDialog();
+    try {
+      await postBlockGrades({ blockId, studentGrades }).unwrap();
+      showToast('Notas guardadas.', 'success');
+      setNotesEditable(false);
+      handleOpenDialog();
+    } catch {
+      showToast('Error al guardar las notas.', 'error');
+    }
   };
 
-  //   React.useEffect(() => {
-  //     if (!initialized.current && evaluaciones.length === 0) {
-  //       const newId = 1;
-  //       setEvaluaciones([{ id: newId, name: '', weight: '1', date: null }]);
-  //       setEditingRows({ [newId]: true });
-  //       initialized.current = true;
-  //     }
-  //   }, [evaluaciones.length]);
+  // ─── 1️⃣5️⃣ Mientras carga evaluaciones o notas → spinner ─────────────────────────────────────────
+  if (isLoadingEvals || isFetchingEvals) {
+    return (
+      <Box sx={{ textAlign: 'center', py: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+  if (errorEvals) {
+    return <Alert severity="error">Error al cargar evaluaciones.</Alert>;
+  }
+  if (isLoadingGrades || isFetchingGrades) {
+    return (
+      <Box sx={{ textAlign: 'center', py: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+  if (errorGrades) {
+    return <Alert severity="error">Error al cargar las notas de alumnos.</Alert>;
+  }
 
+  // ─── 1️⃣6️⃣ Calcular pesos por letra ───────────────────────────────────────────────────────────
+  const pesosPorLetra: Record<string, number> = {};
+  evaluacionesValidas.forEach((ev, idx) => {
+    const letter = evaluacionLetters[idx];
+    pesosPorLetra[letter] = parseFloat(ev.weight);
+  });
+
+  // ─── 1️⃣7️⃣ JSX de renderizado ─────────────────────────────────────────────────────────────────
   return (
     <>
       <Typography sx={{ color: 'neutral.dark', fontWeight: '700' }}>Modelo de evaluaciones</Typography>
       <Typography variant="body1" sx={{ mb: '24px' }}>
-        Edite el tipo y la fecha de cada evaluación según la planificación del curso.
+        Edita todas las evaluaciones en bloque.
       </Typography>
+
+      {/* Botones “Editar/Guardar” y “Agregar” para evaluaciones */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+        <Button
+          variant="contained"
+          onClick={() => (isEditingAll ? handleSaveAll() : setIsEditingAll(true))}
+          disabled={isEditingAll ? !saveEnabled : isCreating || isUpdating}
+        >
+          {isEditingAll ? 'Guardar' : 'Editar'}
+        </Button>
+        <Button startIcon={<Add />} onClick={handleAddEvaluacion} color="secondary" sx={{ ml: 2 }}>
+          Agregar
+        </Button>
+      </Box>
+
+      {/* Tabla de evaluaciones */}
       <TableContainer component={Box}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 700 }}>Detalle de evaluaciones</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>#</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Nombre</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
                   Peso
-                  <Tooltip title="Es el valor que tiene una nota dentro del promedio final. Cuanto mayor es el peso, más influye en la calificación. Debe ingresar un número entero del 1 al 100.">
+                  <Tooltip title="Sistema de promedio ponderado.">
                     <InfoOutlined sx={{ fontSize: 14 }} />
                   </Tooltip>
                 </Box>
               </TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Fecha</TableCell>
-              <TableCell />
+              <TableCell sx={{ fontWeight: 700 }}>Eliminar</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {evaluaciones.map(({ id, name, weight, date }, idx) => {
-              const isEditing = editingRows[id] || false;
+            {evaluaciones.map((ev) => {
+              const letterIndex = evaluacionesValidas.findIndex((v) => v.id === ev.id);
+              const letter = letterIndex >= 0 ? String.fromCharCode(65 + letterIndex) : '';
+              const isEditing = isEditingAll;
+
               return (
-                <TableRow key={id}>
+                <TableRow key={ev.id}>
+                  <TableCell>{letter}</TableCell>
                   <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '0px 48px' }}>
-                      <Typography sx={{ fontWeight: '700' }}>{evaluacionLetters[idx]}</Typography>
-                      <TextField
-                        label="Nombre"
-                        variant="standard"
-                        disabled={!isEditing}
-                        value={name}
-                        onChange={(e) => handleChange(id, 'name', e.target.value)}
-                        slotProps={{
-                          inputLabel: { shrink: true },
-                        }}
-                      />
-                    </Box>
+                    <TextField
+                      variant="standard"
+                      fullWidth
+                      disabled={!isEditing}
+                      value={ev.title}
+                      onChange={(e) => handleChange(ev.id, 'title', e.target.value)}
+                      InputLabelProps={{ shrink: true }}
+                    />
                   </TableCell>
                   <TableCell align="center">
                     <OutlinedInput
-                      value={weight}
+                      value={ev.weight}
                       disabled={!isEditing}
                       onChange={(e) => {
                         const val = e.target.value;
-                        if (val === '' || /^[1-9][0-9]{0,1}$|^100$/.test(val)) {
-                          handleChange(id, 'weight', val);
+                        if (/^\d{0,3}(\.\d{0,2})?$/.test(val)) {
+                          handleChange(ev.id, 'weight', val);
                         }
                       }}
                       onBlur={() => {
-                        let num = parseInt(weight, 10);
-                        if (isNaN(num) || num < 1) num = 1;
+                        let num = parseFloat(ev.weight);
+                        if (isNaN(num) || num < 0) num = 0;
                         if (num > 100) num = 100;
-                        handleChange(id, 'weight', num.toString());
+                        handleChange(ev.id, 'weight', num.toFixed(2));
                       }}
-                      inputProps={{
-                        inputMode: 'numeric',
-                        pattern: '[0-9]*',
-                      }}
+                      inputProps={{ inputMode: 'decimal' }}
                       sx={{
                         '.MuiOutlinedInput-input': {
                           padding: 0,
                           textAlign: 'center',
-                          width: '32px',
+                          width: '40px',
                           height: '32px',
                         },
                         '& .MuiOutlinedInput-notchedOutline': {
@@ -239,9 +395,8 @@ const TeacherGradesView = () => {
                   </TableCell>
                   <TableCell>
                     <DatePicker
-                      label="Seleccionar fecha"
-                      value={date}
-                      onChange={(newDate) => handleChange(id, 'date', newDate)}
+                      value={ev.date}
+                      onChange={(newDate) => handleChange(ev.id, 'date', newDate)}
                       disabled={!isEditing}
                       format="DD/MM/YYYY"
                       slotProps={{
@@ -267,22 +422,12 @@ const TeacherGradesView = () => {
                     />
                   </TableCell>
                   <TableCell>
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                      <IconButton
-                        onClick={() => {
-                          if (isEditing && !canSaveEvaluacion({ id, name, weight, date })) {
-                            alert('Completa todos los campos antes de guardar.');
-                            return;
-                          }
-                          toggleEdit(id);
-                        }}
-                      >
-                        {isEditing ? <Save /> : <Edit />}
-                      </IconButton>
-                      <IconButton onClick={() => handleDeleteEvaluacion(id)}>
-                        <Delete />
-                      </IconButton>
-                    </Box>
+                    <IconButton
+                      onClick={() => handleDeleteEvaluacion(ev.id)}
+                      disabled={isCreating || isUpdating || isDeleting}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               );
@@ -290,21 +435,27 @@ const TeacherGradesView = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      <Box sx={{ mt: 1 }}>
-        <Button startIcon={<Add />} onClick={handleAddEvaluacion} color="secondary" fullWidth>
-          Agregar evaluación
-        </Button>
-      </Box>
+
       <Divider sx={{ my: 4 }} />
+
+      {/* ─── Sección “Notas de estudiantes” ────────────────────────────────────────────────────── */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
         <Box>
-          <Typography sx={{ color: 'neutral.dark', fontWeight: '700' }}>Ingrese las notas</Typography>
-          <Typography>Complete la tabla con las calificaciones de sus alumnos.</Typography>
+          <Typography sx={{ color: 'neutral.dark', fontWeight: '700' }}>Notas de estudiantes</Typography>
+          <Typography>Aquí se muestran las calificaciones que cada alumno obtuvo en las evaluaciones.</Typography>
         </Box>
-        <Button onClick={handleSaveGrades} variant="contained" size="large" disabled={!guardarHabilitado}>
-          Guardar
+
+        {/* --- Botón que alterna Editar / Guardar notas --- */}
+        <Button
+          variant="contained"
+          onClick={() => (notesEditable ? handleSaveGrades() : setNotesEditable(true))}
+          disabled={notesEditable ? isSavingGrades : false}
+        >
+          {notesEditable ? isSavingGrades ? <CircularProgress size={24} color="inherit" /> : 'Guardar' : 'Editar'}
         </Button>
       </Box>
+
+      {/* ─── Diálogo “¡Notas subido con éxito!” (abre tras guardar) ────────────────────────────── */}
       <Dialog
         onClose={handleCloseDialog}
         aria-labelledby="customized-dialog-title"
@@ -343,17 +494,13 @@ const TeacherGradesView = () => {
           <Button onClick={handleCloseDialog} variant="outlined" color="secondary" size="large">
             Volver al módulo
           </Button>
-          <Button
-            component={Link}
-            to="/courses/posgrado/course/final-grades"
-            // to={`${location.pathname}/final-grades`}
-            variant="contained"
-            size="large"
-          >
+          <Button component={Link} to="/courses/posgrado/course/final-grades" variant="contained" size="large">
             Ver notas finales
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* ─── Tabla de alumnos con calificaciones ───────────────────────────────────────────────── */}
       <TableContainer>
         <Table>
           <TableHead>
@@ -370,76 +517,73 @@ const TeacherGradesView = () => {
               <TableCell />
             </TableRow>
           </TableHead>
+
           <TableBody>
-            {(() => {
-              const pesos: Record<string, number> = {};
-              evaluacionesValidas.forEach((evalItem, idx) => {
-                const letra = evaluacionLetters[idx];
-                pesos[letra] = parseInt(evalItem.weight || '0', 10);
-              });
-              return notas.map((alumno) => {
-                const isEditing = editingNotas[alumno.id] || false;
-                const promedio = calcularPromedioPonderado(alumno, pesos);
-                return (
-                  <TableRow key={alumno.id}>
-                    <TableCell>{alumno.name}</TableCell>
-                    {evaluacionLetters.map((letra) => (
-                      <TableCell key={letra} align="center">
-                        <OutlinedInput
-                          value={alumno[letra]?.toString() || ''}
-                          disabled={!isEditing}
-                          type="number"
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (val === '' || /^(\d{1,2})(\.\d{0,2})?$|^20(\.0{0,2})?$/.test(val)) {
-                              handleNotaChange(alumno.id, letra, val);
-                            }
-                          }}
-                          onBlur={() => {
-                            let num = parseFloat(alumno[letra]?.toString() || '0');
-                            if (isNaN(num)) num = 0;
-                            if (num < 0) num = 0;
-                            if (num > 20) num = 20;
-                            handleNotaChange(alumno.id, letra, num.toFixed(1));
-                          }}
-                          inputProps={{ step: 0.1, min: 0, max: 20 }}
-                          sx={{
-                            '.MuiOutlinedInput-input': {
-                              padding: 0,
-                              textAlign: 'center',
-                              width: '42px',
-                              height: '32px',
-                              '&::-webkit-outer-spin-button': {
-                                WebkitAppearance: 'none',
-                                margin: 0,
-                              },
-                              '&::-webkit-inner-spin-button': {
-                                WebkitAppearance: 'none',
-                                margin: 0,
-                              },
-                              '&[type=number]': {
-                                MozAppearance: 'textfield',
-                              },
+            {notas.map((alumno) => {
+              // Calcular promedio ponderado en lectura
+              let promedio = '-';
+              if (evaluacionLetters.length > 0) {
+                let suma = 0;
+                let totalPeso = 0;
+                evaluacionLetters.forEach((letra) => {
+                  const notaStr = alumno[letra]?.toString() || '0';
+                  const notaNum = parseFloat(notaStr);
+                  const peso = pesosPorLetra[letra] || 0;
+                  if (!isNaN(notaNum) && peso > 0) {
+                    suma += notaNum * peso;
+                    totalPeso += peso;
+                  }
+                });
+                promedio = totalPeso > 0 ? (suma / totalPeso).toFixed(1) : '-';
+              }
+
+              return (
+                <TableRow key={alumno.id}>
+                  <TableCell>{alumno.name}</TableCell>
+
+                  {evaluacionLetters.map((letra) => (
+                    <TableCell key={letra} align="center">
+                      <OutlinedInput
+                        value={alumno[letra]?.toString() || ''}
+                        disabled={!notesEditable}
+                        type="number"
+                        onChange={(e) => handleNotaChange(alumno.id, letra, e.target.value)}
+                        inputProps={{ step: 0.1, min: 0, max: 20 }}
+                        sx={{
+                          '.MuiOutlinedInput-input': {
+                            padding: 0,
+                            textAlign: 'center',
+                            width: '42px',
+                            height: '32px',
+                            '&::-webkit-outer-spin-button': {
+                              WebkitAppearance: 'none',
+                              margin: 0,
                             },
-                            '& .MuiOutlinedInput-notchedOutline': {
-                              borderColor: 'neutral.dark',
+                            '&::-webkit-inner-spin-button': {
+                              WebkitAppearance: 'none',
+                              margin: 0,
                             },
-                          }}
-                        />
-                      </TableCell>
-                    ))}
-                    <TableCell align="center">{promedio}</TableCell>
-                    <TableCell align="right">
-                      <IconButton
-                        onClick={() => setEditingNotas((prev) => ({ ...prev, [alumno.id]: !prev[alumno.id] }))}
-                      >
-                        {isEditing ? <Save /> : <Edit />}
-                      </IconButton>
+                            '&[type=number]': {
+                              MozAppearance: 'textfield',
+                            },
+                          },
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'neutral.dark',
+                          },
+                        }}
+                      />
                     </TableCell>
-                  </TableRow>
-                );
-              });
-            })()}
+                  ))}
+
+                  <TableCell align="center">{promedio}</TableCell>
+                  <TableCell align="right">
+                    <IconButton disabled>
+                      <SaveIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>

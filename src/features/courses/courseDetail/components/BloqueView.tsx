@@ -24,8 +24,8 @@ import TeacherGradesView from '../views/TeacherGradesView';
 import UploadFileDialog from '@/components/common/UploadFileDialog';
 import { BlockDetailDto, BlockType } from '@/services/courses/types';
 
-import { createCan } from '@/helpers/createCan';
-import { role } from '@/configs/consts';
+// import { createCan } from '@/helpers/createCan';
+// import { role } from '@/configs/consts';
 import { useAbility } from '@/hooks/useAbility';
 import { showToast } from '@/helpers/notifier';
 import { formatFullDateInPeru } from '@/helpers/formatDate';
@@ -483,7 +483,11 @@ const BloqueView: FC<BloqueViewProps> = ({ selectedBlock }) => {
         )}
       </TabPanel>
       <TabPanel value={valueTab} index={2}>
-        {!canViewNotesCtrl() ? <AlumnoNotasView blockId={selectedBlock.blockId} /> : <TeacherGradesView />}
+        {!canViewNotesCtrl() ? (
+          <AlumnoNotasView blockId={selectedBlock.blockId} />
+        ) : (
+          <TeacherGradesView blockId={selectedBlock.blockId} />
+        )}
       </TabPanel>
     </Box>
   );

@@ -35,7 +35,16 @@ const baseQueryWithReauth = async (args: string | FetchArgs, api: any, extraOpti
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: [lab.Courses, lab.Semesters, lab.Users, lab.Materials, lab.Attendance, lab.Grades, lab.BlockAssignments],
+  tagTypes: [
+    lab.Courses,
+    lab.Semesters,
+    lab.Users,
+    lab.Materials,
+    lab.Attendance,
+    lab.Grades,
+    lab.BlockAssignments,
+    lab.Evaluations,
+  ],
   refetchOnFocus: true,
   refetchOnReconnect: true,
   endpoints: () => ({}),
