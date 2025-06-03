@@ -14,6 +14,7 @@ export interface EnrolledStudentsResponseDto {
   students: EnrolledStudentDto[];
   canEditAttendance: boolean;
   attendanceStatusMessage: string | null;
+  messageType: string | null;
 }
 
 export interface ClassDayInfo {
