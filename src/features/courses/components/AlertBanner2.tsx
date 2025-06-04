@@ -25,19 +25,21 @@ export default function AlertBanner2({ open, onClose }: AlertBannerProps) {
           color: theme.palette.neutral.lightest,
           borderRadius: '24px',
           display: 'flex',
-          flexDirection: 'row',
+          flexDirection: { xs: 'column', md: 'row' },
           justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '64px',
+          alignItems: { xs: 'flex-start', md: 'center' },
+          padding: { xs: '32px', md: '64px' },
           position: 'relative',
-          height: '308px',
+          height: { xs: 'auto', md: '308px' },
           overflow: 'hidden',
+          gap: { xs: 2, md: 0 },
           '.MuiAlert-message': {
             width: '100%',
             display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: { xs: 'flex-start', md: 'center' },
             justifyContent: 'space-between',
+            textAlign: { xs: 'center', md: 'left' },
           },
           '.MuiAlert-action': {
             position: 'absolute',
@@ -88,15 +90,16 @@ export default function AlertBanner2({ open, onClose }: AlertBannerProps) {
             />
           </Box>
         </Box>
-        <Box sx={{ maxWidth: 550 }}>
+        <Box sx={{ maxWidth: { xs: '100%', md: 550 } }}>
           <Typography
             sx={{
               color: theme.palette.neutral.lightest,
-              fontSize: 32,
+              fontSize: { xs: 20, md: 32 },
               fontWeight: 700,
               lineHeight: 1,
-              mb: '8px',
+              mb: { xs: '4px', md: '8px' },
               display: 'block',
+              textAlign: { xs: 'center', md: 'left' },
             }}
           >
             ¡Tu opinión es importante!
@@ -104,11 +107,12 @@ export default function AlertBanner2({ open, onClose }: AlertBannerProps) {
           <Typography
             sx={{
               color: theme.palette.neutral.lightest,
-              fontSize: 24,
+              fontSize: { xs: 16, md: 24 },
               fontWeight: 400,
               lineHeight: 1.2,
               mb: '4px',
               display: 'block',
+              textAlign: { xs: 'center', md: 'left' },
             }}
           >
             Participa en las Encuestas de Evaluación del Desempeño Docente (2025-I)
@@ -116,21 +120,30 @@ export default function AlertBanner2({ open, onClose }: AlertBannerProps) {
           <Typography
             sx={{
               color: theme.palette.neutral.lightest,
-              fontSize: 12,
+              fontSize: { xs: 11, md: 12 },
               lineHeight: 1,
               fontWeight: 400,
               mt: '16px',
               display: 'block',
+              textAlign: { xs: 'center', md: 'left' },
             }}
           >
             *La encuesta es anónima. Tus respuestas se mantendrán confidenciales.
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              mt: 2,
+              justifyContent: { xs: 'center', md: 'flex-start' },
+            }}
+          >
             <Button
               href="https://docs.google.com/forms/d/e/1FAIpQLSep27iloSXAIhT5ZZTpezNECz1N9B2ixfN3QikUwOVEU6GYlw/viewform"
               target="_blank"
               variant="contained"
               size="large"
+              sx={{ width: { xs: '100%', sm: 'auto' } }}
             >
               Acceder al Formulario
             </Button>
