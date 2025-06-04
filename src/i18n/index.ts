@@ -15,7 +15,7 @@ i18n.use(initReactI18next).init({
         'User is not confirmed.': 'El usuario no ha confirmado su cuenta.',
         PasswordResetRequiredException: 'Restablecimiento de contraseña requerido',
         'Password reset required for the user.': 'Es necesario restablecer la contraseña.',
-        TooManyFailedAttemptsException: 'Demasios intentos fallidos',
+        TooManyFailedAttemptsException: 'Demasiados intentos fallidos',
         'Too many failed attempts, please try again later.':
           'Ha excedido el número de intentos. Intenta de nuevo más tarde.',
         InvalidParameterException: 'Parámetro inválido',
