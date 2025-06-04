@@ -210,7 +210,7 @@ const AddMaterialDialog: FC<AddMaterialDialogProps> = ({
                     justifyContent: 'center',
                     alignItems: 'center',
                     width: '100%',
-                    minWidth: { md: '552px' },
+                    maxWidth: { md: '552px' },
                   }}
                 >
                   <UploadFile color="primary" />

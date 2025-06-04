@@ -50,10 +50,12 @@ const MaterialItem: FC<MaterialItemProps> = ({
   <>
     <Box
       sx={{
-        p: '16px',
+        p: { xs: '12px', sm: '16px' },
         display: 'flex',
+        flexDirection: { xs: 'column', sm: 'row' },
+        gap: { xs: '16px', sm: 0 },
         justifyContent: 'space-between',
-        alignItems: 'start',
+        alignItems: { xs: 'stretch', sm: 'start' },
       }}
     >
       <Box>
@@ -87,7 +89,14 @@ const MaterialItem: FC<MaterialItemProps> = ({
         </Box>
       </Box>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          justifyContent: { xs: 'flex-start', sm: 'flex-end' },
+        }}
+      >
         <Button variant="outlined" color="secondary" href={material.materialUrl} target="_blank">
           Descargar
         </Button>
