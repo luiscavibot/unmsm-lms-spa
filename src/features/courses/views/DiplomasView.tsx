@@ -76,11 +76,21 @@ const DiplomasView: React.FC = () => {
 
   return (
     <Box sx={{ bgcolor: theme.palette.neutral.lightest, p: 3, borderRadius: '8px' }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={5}>
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        justifyContent="space-between"
+        alignItems={{ xs: 'stretch', sm: 'center' }}
+        spacing={{ xs: 2, sm: 0 }}
+        mb={5}
+      >
         <ChipsFilter active={activeChip} onChange={setActiveChip} />
 
         <Stack direction="row" spacing={2} alignItems="center">
-          <FormControl variant="standard" size="medium" sx={{ m: 1, width: '309px' }}>
+          <FormControl
+            variant="standard"
+            size="medium"
+            sx={{ m: 1, width: { xs: '100%', sm: '309px' } }}
+          >
             <InputLabel htmlFor="search-input">Buscar</InputLabel>
             <Controller
               name="search"
@@ -115,8 +125,10 @@ const DiplomasView: React.FC = () => {
                   value={selected}
                   onChange={(_, option) => field.onChange(option ? option.id : '')}
                   disablePortal
-                  sx={{ width: 300 }}
-                  renderInput={(params) => <TextField {...params} label="Semestre" variant="standard" />}
+                  sx={{ width: { xs: '100%', sm: 300 } }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Semestre" variant="standard" />
+                  )}
                 />
               );
             }}
@@ -156,7 +168,13 @@ const DiplomasView: React.FC = () => {
               {program.courses.map((course) => (
                 <Box
                   key={course.courseId}
-                  sx={{ flex: '1 1 30%', minWidth: 280, maxWidth: '32%', display: 'flex', justifyContent: 'center' }}
+                  sx={{
+                    flex: { xs: '1 1 100%', md: '1 1 30%' },
+                    minWidth: { xs: '100%', md: 280 },
+                    maxWidth: { xs: '100%', md: '32%' },
+                    display: 'flex',
+                    justifyContent: 'center',
+                  }}
                 >
                   <CardCourse {...course} />
                 </Box>
