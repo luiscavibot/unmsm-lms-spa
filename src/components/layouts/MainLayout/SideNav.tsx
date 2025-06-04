@@ -10,8 +10,10 @@ import {
   Box,
 } from '@mui/material';
 import { styled, Theme, CSSObject } from '@mui/material/styles';
+import { useMediaQuery } from '@mui/material';
 // import React from 'react'
-import { useAppSelector } from '@/store/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { closeDrawer } from '@/store/slices/ui/uiSlice';
 import { Link as RouterLink } from 'react-router-dom';
 
 const drawerWidth = 240;
@@ -83,9 +85,16 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 export default function SideNav() {
   const open = useAppSelector((state) => state.ui.drawerOpen);
+  const dispatch = useAppDispatch();
+  const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
 
   return (
-    <Drawer variant="permanent" open={open}>
+    <Drawer
+      variant={isMobile ? 'temporary' : 'permanent'}
+      open={open}
+      onClose={() => dispatch(closeDrawer())}
+      ModalProps={{ keepMounted: true }}
+    >
       <Toolbar />
       <Box sx={{ xs: { overflow: 'auto' }, md: { overflowX: 'hidden', overflowY: 'auto' } }}>
         <List>

@@ -3,7 +3,7 @@ import { UIState } from './types';
 import { SliceNames } from '../sliceNames';
 
 const initialState: UIState = {
-  drawerOpen: true,
+  drawerOpen: false,
 };
 
 const uiSlice = createSlice({
