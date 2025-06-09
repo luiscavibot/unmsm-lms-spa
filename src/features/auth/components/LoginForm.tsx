@@ -51,16 +51,16 @@ const LoginForm = () => {
   return (
     <Box width={{ xs: 'auto', sm: 310 }} maxWidth="100%" mx="auto">
       <Typography
-        sx={{ maxWidth: 183, textAlign: 'center', mx: 'auto', mb: 1 }}
-        variant="h2"
+        sx={{ maxWidth: 400, textAlign: 'center', mx: 'auto', mb: 1 }}
+        variant="h1"
         fontSize={{ xs: 16, md: 24 }}
         fontWeight={800}
       >
-        ¡Bienvenido/a <br /> a tu aula virtual!
+        AULA VIRTUAL RAIMONDI
       </Typography>
 
       <Typography variant="body2" sx={{ mb: 3, textAlign: 'center' }}>
-        Ingresa para acceder a tus cursos y <br /> materiales en línea.
+        Ingrese para acceder a sus cursos y <br /> materiales en línea.
       </Typography>
 
       {authError && (
@@ -116,8 +116,8 @@ const LoginForm = () => {
           </Button>
         </Stack>
       </Box>
-
-      <Divider sx={{ my: 2 }}>o</Divider>
+      {/* 
+      <Divider sx={{ my: 2 }}>o</Divider> */}
 
       {/* <Button
         sx={{

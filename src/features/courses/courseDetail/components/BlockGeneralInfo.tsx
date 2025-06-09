@@ -22,9 +22,9 @@ const BlockGeneralInfo: FC<BlockGeneralInfoProps> = ({ block, canEdit, fileActio
           justifyContent: 'space-between',
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+        <Box sx={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexDirection: 'column' }}>
           <Typography variant="body2" sx={{ fontSize: '14px', fontWeight: '600', color: 'neutral.dark' }}>
-            Horario:
+            Horario de la semana:
           </Typography>
           <Box component="ul" sx={{ pl: 2, my: 0, listStyle: 'disc', color: 'neutral.main' }}>
             {block.schedule.map((item) => (
@@ -33,22 +33,53 @@ const BlockGeneralInfo: FC<BlockGeneralInfoProps> = ({ block, canEdit, fileActio
               </Box>
             ))}
           </Box>
+          {false && (
+            <Typography
+              component="span"
+              variant="body2"
+              sx={{
+                fontSize: '14px',
+                fontWeight: '400',
+                color: 'primary.main',
+                textDecoration: 'underline',
+                cursor: 'pointer',
+              }}
+            >
+              Ver horarios completos
+            </Typography>
+          )}
         </Box>
-        <Box>
-          <Typography component="span" variant="body2" sx={{ fontSize: '14px', fontWeight: '600', color: 'neutral.dark' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <Typography
+            component="span"
+            variant="body2"
+            sx={{ fontSize: '14px', fontWeight: '600', color: 'neutral.dark' }}
+          >
             Aula:
           </Typography>{' '}
-          <Typography component="span" variant="body2" sx={{ fontSize: '14px', fontWeight: '400', color: 'neutral.main' }}>
+          <Typography
+            component="span"
+            variant="body2"
+            sx={{ fontSize: '14px', fontWeight: '400', color: 'neutral.main' }}
+          >
             {block.aula || 'No asignada'}
           </Typography>
         </Box>
       </Box>
       {block.teacher && (
         <Box>
-          <Typography component="span" variant="body2" sx={{ fontSize: '14px', fontWeight: '600', color: 'neutral.dark' }}>
+          <Typography
+            component="span"
+            variant="body2"
+            sx={{ fontSize: '14px', fontWeight: '600', color: 'neutral.dark' }}
+          >
             Docente:
           </Typography>{' '}
-          <Typography component="span" variant="body2" sx={{ fontSize: '14px', fontWeight: '400', color: 'neutral.main' }}>
+          <Typography
+            component="span"
+            variant="body2"
+            sx={{ fontSize: '14px', fontWeight: '400', color: 'neutral.main' }}
+          >
             {block.teacher}
           </Typography>
         </Box>
@@ -57,12 +88,26 @@ const BlockGeneralInfo: FC<BlockGeneralInfoProps> = ({ block, canEdit, fileActio
       {!canEdit && (
         <Box sx={{ display: 'flex', gap: '10px' }}>
           {fileActions.existsSyllabus && (
-            <Button size="small" startIcon={<ContentPaste />} variant="outlined" color="secondary" href={block.syllabus.downloadUrl} target="_blank">
+            <Button
+              size="small"
+              startIcon={<ContentPaste />}
+              variant="outlined"
+              color="secondary"
+              href={block.syllabus.downloadUrl}
+              target="_blank"
+            >
               Syllabus
             </Button>
           )}
           {fileActions.existsCV && (
-            <Button size="small" startIcon={<ContentPaste />} variant="outlined" color="secondary" href={block.cv.downloadUrl} target="_blank">
+            <Button
+              size="small"
+              startIcon={<ContentPaste />}
+              variant="outlined"
+              color="secondary"
+              href={block.cv.downloadUrl}
+              target="_blank"
+            >
               CV del docente
             </Button>
           )}
@@ -72,7 +117,14 @@ const BlockGeneralInfo: FC<BlockGeneralInfoProps> = ({ block, canEdit, fileActio
       {canEdit && (
         <Box sx={{ display: 'flex', gap: '10px' }}>
           {fileActions.existsSyllabus ? (
-            <Button size="small" startIcon={<CheckCircleOutline />} variant="outlined" color="success" href={block.syllabus.downloadUrl} target="_blank">
+            <Button
+              size="small"
+              startIcon={<CheckCircleOutline />}
+              variant="outlined"
+              color="success"
+              href={block.syllabus.downloadUrl}
+              target="_blank"
+            >
               Syllabus
             </Button>
           ) : (
@@ -82,7 +134,14 @@ const BlockGeneralInfo: FC<BlockGeneralInfoProps> = ({ block, canEdit, fileActio
           )}
 
           {fileActions.existsCV ? (
-            <Button size="small" startIcon={<CheckCircleOutline />} variant="outlined" color="success" href={block.cv.downloadUrl} target="_blank">
+            <Button
+              size="small"
+              startIcon={<CheckCircleOutline />}
+              variant="outlined"
+              color="success"
+              href={block.cv.downloadUrl}
+              target="_blank"
+            >
               CV del docente
             </Button>
           ) : (
@@ -105,7 +164,14 @@ const BlockGeneralInfo: FC<BlockGeneralInfoProps> = ({ block, canEdit, fileActio
       )}
     </Box>
 
-    <Button size="large" startIcon={<Videocam />} variant="contained" color="primary" href={block.meetUrl} target="_blank">
+    <Button
+      size="large"
+      startIcon={<Videocam />}
+      variant="contained"
+      color="primary"
+      href={block.meetUrl}
+      target="_blank"
+    >
       Ir a clase
     </Button>
   </Box>

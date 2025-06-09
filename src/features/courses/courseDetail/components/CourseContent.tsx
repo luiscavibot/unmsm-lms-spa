@@ -27,7 +27,6 @@ const labelStyle = { fontWeight: 700, color: 'neutral.dark' };
 const valueStyle = { fontWeight: 400, color: 'neutral.main' };
 
 const CourseContent: FC<CourseContentProps> = ({ course }) => {
-  //obtener el estado de authstate
   const { user } = useAppSelector((state) => state.auth);
   const roles = useMemo(() => user?.['cognito:groups'] ?? [], [user]);
 
