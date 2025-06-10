@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect, useMemo } from 'react';
+import React, { FC, useState, useEffect, useMemo, useRef } from 'react';
 import { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import { useForm, Controller } from 'react-hook-form';
@@ -45,7 +45,6 @@ interface FormValues {
   search: string;
 }
 
-// Añadimos la nueva opción 'justified'
 type AttendanceOption = 'asistio' | 'noAsistio' | 'tardanza' | 'justified' | null;
 
 interface StudentAttendance {
@@ -56,14 +55,16 @@ interface StudentAttendance {
 
 const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
   const [value, setValue] = useState<Dayjs | null>(null);
-  const [filterDate, setFilterDate] = useState<string | null>(null);
 
   const {
     data: attendanceData,
     isLoading: isLoadingAttendance,
     isFetching: isFetchingAttendance,
     error: errorAttendance,
-  } = useGetEnrolledStudentsAttendanceQuery({ blockId, date: filterDate || undefined });
+  } = useGetEnrolledStudentsAttendanceQuery({
+    blockId,
+    date: value ? value.format('YYYY-MM-DD') : undefined,
+  });
 
   const {
     data: classDaysData,
@@ -75,7 +76,9 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
   const [postBulkAttendance, { isLoading: isSubmitting }] = usePostBulkAttendanceMutation();
 
   const [students, setStudents] = useState<StudentAttendance[]>([]);
-  const [isSaved, setIsSaved] = useState(false);
+  const originalAttendance = useRef<StudentAttendance[]>([]);
+
+  const [isEditMode, setIsEditMode] = useState(true);
 
   const { control, watch } = useForm<FormValues>({ defaultValues: { search: '' } });
   const { search } = watch();
@@ -86,44 +89,35 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
     return () => clearTimeout(handler);
   }, [search]);
 
+  // Inicializa el datepicker solo con la fecha default traída por la API la primera vez
   useEffect(() => {
-    if (value) {
-      setFilterDate(value.format('YYYY-MM-DD'));
-    } else {
-      setFilterDate(null);
+    if (attendanceData?.date && !value) {
+      setValue(dayjs(attendanceData.date, 'YYYY-MM-DD'));
     }
-  }, [value]);
-
-  useEffect(() => {
-    if (attendanceData && attendanceData.date) {
-      const defaultDay = dayjs(attendanceData.date, 'YYYY-MM-DD');
-      setValue(defaultDay);
-      setFilterDate(attendanceData.date);
-    }
-  }, [attendanceData]);
+  }, [attendanceData, value]);
 
   useEffect(() => {
     if (!attendanceData) {
       setStudents([]);
+      originalAttendance.current = [];
+      setIsEditMode(true); // Si no hay data, siempre en modo edición
       return;
     }
-
     const mapped: StudentAttendance[] = attendanceData.students.map((s) => {
       let opcion: AttendanceOption = null;
       if (s.attendanceStatus === AttendanceStatus.PRESENT) opcion = 'asistio';
       else if (s.attendanceStatus === AttendanceStatus.ABSENT) opcion = 'noAsistio';
       else if (s.attendanceStatus === AttendanceStatus.LATE) opcion = 'tardanza';
       else if (s.attendanceStatus === AttendanceStatus.JUSTIFIED) opcion = 'justified';
-
       return {
         id: s.enrollmentId,
         nombre: s.userName,
         asistencia: opcion,
       };
     });
-
     setStudents(mapped);
-    setIsSaved(false);
+    originalAttendance.current = mapped;
+    setIsEditMode(true); // Siempre inicia en modo edición al cargar nueva fecha
   }, [attendanceData]);
 
   const filteredStudents = useMemo(
@@ -131,7 +125,16 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
     [students, debouncedSearch],
   );
 
+  const hasChanges = useMemo(() => {
+    return students.some((student) => {
+      const original = originalAttendance.current.find((s) => s.id === student.id);
+      return original?.asistencia !== student.asistencia;
+    });
+  }, [students]);
+
   const canSave =
+    isEditMode &&
+    hasChanges &&
     filteredStudents.length > 0 &&
     filteredStudents.every((s) => s.asistencia !== null) &&
     !isSubmitting &&
@@ -142,10 +145,19 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
     setStudents((prev) => prev.map((student) => (student.id === id ? { ...student, asistencia: option } : student)));
   };
 
+  const getChangedStudents = () => {
+    return students.filter((student) => {
+      const original = originalAttendance.current.find((s) => s.id === student.id);
+      return original?.asistencia !== student.asistencia;
+    });
+  };
+
   const handleSave = async () => {
     if (!canSave || !attendanceData?.classSessionId) return;
+    const changedStudents = getChangedStudents();
+    if (changedStudents.length === 0) return;
 
-    const attendanceRecords = students.map((s) => {
+    const attendanceRecords = changedStudents.map((s) => {
       let status: AttendanceStatus;
       switch (s.asistencia) {
         case 'asistio':
@@ -170,13 +182,23 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
     });
 
     try {
-      await postBulkAttendance({ classSessionId: attendanceData.classSessionId, attendanceRecords }).unwrap();
+      await postBulkAttendance({
+        classSessionId: attendanceData.classSessionId,
+        attendanceRecords,
+      }).unwrap();
       showToast('Asistencia guardada correctamente', 'success');
-      setIsSaved(true);
+      setIsEditMode(false); // Ahora está en modo solo lectura
+      originalAttendance.current = students;
     } catch (err) {
       console.error('Error guardando asistencia:', err);
       showToast('Error al guardar la asistencia', 'error');
     }
+  };
+
+  const handleEdit = () => {
+    setIsEditMode(true);
+    // No reseteamos students, solo permitimos editar el estado actual
+    // El snapshot original se mantiene para detectar cambios en el siguiente guardado
   };
 
   if (isLoadingAttendance || isFetchingAttendance || isLoadingClassDays || isFetchingClassDays) {
@@ -273,7 +295,7 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
                         checked={student.asistencia === option}
                         onChange={() => handleAttendanceChange(student.id, option)}
                         color="secondary"
-                        disabled={!attendanceData.canEditAttendance || isSaved}
+                        disabled={!attendanceData.canEditAttendance || !isEditMode}
                       />
                     </TableCell>
                   ))}
@@ -283,16 +305,28 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
           </Table>
         </TableContainer>
 
-        <Button
-          size="large"
-          variant="contained"
-          color="primary"
-          onClick={handleSave}
-          disabled={!canSave}
-          sx={{ width: '116.25px', height: '42.25px' }}
-        >
-          {isSubmitting ? <CircularProgress size={24} color="inherit" /> : 'Guardar'}
-        </Button>
+        {isEditMode ? (
+          <Button
+            size="large"
+            variant="contained"
+            color="primary"
+            onClick={handleSave}
+            disabled={!canSave}
+            sx={{ width: '116.25px', height: '42.25px' }}
+          >
+            {isSubmitting ? <CircularProgress size={24} color="inherit" /> : 'Guardar'}
+          </Button>
+        ) : (
+          <Button
+            size="large"
+            variant="contained"
+            color="primary"
+            onClick={handleEdit}
+            sx={{ width: '116.25px', height: '42.25px' }}
+          >
+            Editar
+          </Button>
+        )}
       </Box>
     </>
   );
