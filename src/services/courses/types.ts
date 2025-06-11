@@ -60,12 +60,17 @@ export interface BlockDetailDto {
   blockId: string;
   blockType: BlockType.THEORY | BlockType;
   name: string;
-  schedule: string[];
+  schedule: ScheduleDto[];
   aula: string;
   teacher: string | null;
   syllabus: FileInfoDto;
   cv: FileInfoDto;
   meetUrl: string;
+}
+
+export interface ScheduleDto {
+  startDateTime: string;
+  endDateTime: string;
 }
 
 export interface CourseDetailResponseDto {

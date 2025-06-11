@@ -11,6 +11,7 @@ const rawBaseQuery = fetchBaseQuery({
     const token = (getState() as RootState).auth.accessToken;
     if (token) {
       headers.set('authorization', `Bearer ${token}`);
+      headers.set('lms-timezone', Intl.DateTimeFormat().resolvedOptions().timeZone);
     }
     return headers;
   },

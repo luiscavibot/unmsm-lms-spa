@@ -4,6 +4,7 @@ import { CheckCircleOutline, Close, ContentPaste, Videocam } from '@mui/icons-ma
 import { BlockDetailDto } from '@/services/courses/types';
 import BlockFilesDialog from './BlockFilesDialog';
 import useBlockFiles from '../hooks/useBlockFiles';
+import { formatScheduleDate } from '@/helpers/formatDate';
 
 interface BlockGeneralInfoProps {
   block: BlockDetailDto;
@@ -25,11 +26,11 @@ const BlockGeneralInfo: FC<BlockGeneralInfoProps> = ({ block, canEdit, fileActio
         <Box sx={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexDirection: 'column' }}>
           <Typography variant="body2" sx={{ fontSize: '14px', fontWeight: '600', color: 'neutral.dark' }}>
             Horario de la semana:
-          </Typography>
+          </Typography>          
           <Box component="ul" sx={{ pl: 2, my: 0, listStyle: 'disc', color: 'neutral.main' }}>
-            {block.schedule.map((item) => (
-              <Box component="li" key={item} sx={{ fontSize: '14px' }}>
-                {item}
+            {block.schedule.map((item, _) => (
+              <Box component="li" key={_} sx={{ fontSize: '14px' }}>
+                {formatScheduleDate(item.startDateTime, item.endDateTime)}
               </Box>
             ))}
           </Box>
