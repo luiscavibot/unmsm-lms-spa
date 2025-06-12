@@ -8,7 +8,8 @@ export interface EnrolledStudentDto {
 }
 
 export interface EnrolledStudentsResponseDto {
-  date: string | null;
+  startDateTime: string | null;
+  endDateTime: string | null;
   classSessionId: string | null;
   studentNumber: number;
   students: EnrolledStudentDto[];
@@ -17,16 +18,8 @@ export interface EnrolledStudentsResponseDto {
   messageType: string | null;
 }
 
-export interface ClassDayInfo {
-  date: string;
-  startTime: string;
-  endTime: string;
-  sessionId: string;
-  virtualRoomUrl?: string;
-}
-
 export interface ClassDaysResponseDto {
-  classDays: ClassDayInfo[];
+  classDays: string[];
 }
 
 export interface StudentEvaluationDto {

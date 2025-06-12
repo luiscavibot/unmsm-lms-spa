@@ -63,7 +63,7 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
     error: errorAttendance,
   } = useGetEnrolledStudentsAttendanceQuery({
     blockId,
-    date: value ? value.format('YYYY-MM-DD') : undefined,
+    date: value ? value.toISOString() : undefined,
   });
 
   const {
@@ -91,8 +91,8 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
 
   // Inicializa el datepicker solo con la fecha default traída por la API la primera vez
   useEffect(() => {
-    if (attendanceData?.date && !value) {
-      setValue(dayjs(attendanceData.date, 'YYYY-MM-DD'));
+    if (attendanceData?.startDateTime && !value) {
+      setValue(dayjs(attendanceData.startDateTime));
     }
   }, [attendanceData, value]);
 
@@ -212,7 +212,12 @@ const DocenteAsistenciaView: FC<DocenteAsistenciaViewProps> = ({ blockId }) => {
   if (errorAttendance || !attendanceData) return <Alert severity="error">Error al cargar asistencias.</Alert>;
   if (!classDaysData) return <Alert severity="error">No se encontraron días de clase.</Alert>;
 
-  const availableDates = classDaysData.classDays.map((d) => d.date);
+  // Convertir fechas UTC a fechas locales en formato YYYY-MM-DD
+  const availableDates = classDaysData.classDays.map((isoDate) => {
+    // Convertir fecha UTC a local usando dayjs
+    return dayjs(isoDate).local().format('YYYY-MM-DD');
+  });
+  
   const shouldDisableDate = (date: Dayjs) => !availableDates.includes(date.format('YYYY-MM-DD'));
 
   return (

@@ -19,6 +19,7 @@ import { useGetAttendanceByBlockIdQuery } from '@/services/attendance/attendance
 // import { AttendanceStatus, WeekAttendanceDto } from '@/services/attendance/types';
 import { FC } from 'react';
 import { AttendanceStatus } from '@/services/attendance/types';
+import { formatDate } from '@/helpers/formatDate';
 
 const GreenBox = () => <Box sx={{ bgcolor: '#A5D6A7', width: 24, height: 24, borderRadius: 1 }} />;
 const RedBox = () => <Box sx={{ bgcolor: '#EF9A9A', width: 24, height: 24, borderRadius: 1 }} />;
@@ -123,8 +124,8 @@ const AlumnoAsistenciaView: FC<AlumnoAsistenciaViewProps> = ({ blockId }) => {
                   </TableCell>
                 </TableRow>
                 {week.attendances.map((att) => (
-                  <TableRow key={att.date}>
-                    <TableCell sx={{ color: 'neutral.main' }}>{att.formattedDate}</TableCell>
+                  <TableRow key={att.startDateTime}>
+                    <TableCell sx={{ color: 'neutral.main' }}>{formatDate(att.startDateTime)}</TableCell>
                     <TableCell sx={{ textAlign: 'center' }}>
                       {att.status === AttendanceStatus.PRESENT && <GreenBox />}
                       {att.status === AttendanceStatus.ABSENT && <RedBox />}

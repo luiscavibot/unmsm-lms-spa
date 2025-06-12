@@ -161,7 +161,7 @@ const TeacherGradesView: FC<TeacherGradesViewProps> = ({ blockId }) => {
           const payload = {
             blockId,
             title: ev.title,
-            evaluationDate: ev.date!.format('YYYY-MM-DD'),
+            evaluationDate: ev.date!.startOf('day').utc().format(),
             weight: parseFloat(ev.weight),
           };
 

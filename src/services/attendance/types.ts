@@ -6,8 +6,8 @@ export enum AttendanceStatus {
 }
 
 export interface AttendanceDetailDto {
-  date: string;
-  formattedDate: string;
+  startDateTime: string;
+  endDateTime: string;
   status: AttendanceStatus;
 }
 

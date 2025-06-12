@@ -5,12 +5,19 @@ import { API_URL } from '@/configs/consts';
 import { logoutAsync } from '@/store/thunks/logoutAsync';
 import { refreshAsync } from '@/store/thunks/refreshAuthAsync';
 
+export enum HeaderKeys {
+  AUTHORIZATION = 'authorization',
+  BEARER = 'Bearer',
+  TIMEZONE = 'lms-timezone'
+}
+
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: API_URL,
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.accessToken;
     if (token) {
-      headers.set('authorization', `Bearer ${token}`);
+      headers.set(HeaderKeys.AUTHORIZATION, `${HeaderKeys.BEARER} ${token}`);
+      headers.set(HeaderKeys.TIMEZONE, Intl.DateTimeFormat().resolvedOptions().timeZone);
     }
     return headers;
   },
