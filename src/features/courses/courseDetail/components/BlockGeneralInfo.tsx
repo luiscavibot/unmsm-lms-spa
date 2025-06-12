@@ -29,7 +29,7 @@ const BlockGeneralInfo: FC<BlockGeneralInfoProps> = ({ block, canEdit, fileActio
           </Typography>          
           <Box component="ul" sx={{ pl: 2, my: 0, listStyle: 'disc', color: 'neutral.main' }}>
             {block.schedule.map((item, _) => (
-              <Box component="li" key={_} sx={{ fontSize: '14px' }}>
+              <Box component="li" key={`${item.startDateTime}-${_}`} sx={{ fontSize: '14px' }}>
                 {formatScheduleDate(item.startDateTime, item.endDateTime)}
               </Box>
             ))}
